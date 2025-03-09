@@ -10,9 +10,16 @@
   "scripts": {
     "db:generate": "prisma generate",
     "db:migrate": "npx prisma migrate dev --name init --skip-generate",
-    "db:deploy": "prisma migrate deploy"
+    "db:seed": "prisma db seed",
+    "db:deploy": "prisma migrate deploy",
+    "seed": "ts-node src/seed.ts"
   },
   "devDependencies": {
-    "prisma": "^6.4.1"
+    "@types/node": "^22.13.10",
+    "prisma": "^6.4.1",
+    "ts-node": "^10.9.2"
+  },
+  "prisma": {
+    "seed": "ts-node src/seed.ts"
   }
 }

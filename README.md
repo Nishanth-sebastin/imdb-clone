@@ -99,3 +99,12 @@ You can use this minimun configuration to start a clean project, test it and imp
 
 
 ### License
+
+
+
+
+1. npm run dev for dev
+2. npm run build for prod
+3. npx turbo db:generate
+4. npx turbo db:migrate
+5. npx prisma db seed
