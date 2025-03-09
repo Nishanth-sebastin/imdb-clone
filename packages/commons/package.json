@@ -1,5 +1,5 @@
 {
-  "name": "@org/commons",
+  "name": "@repo/commons",
   "version": "1.0.0",
   "license": "ISC",
   "main": "./src/index.ts",

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { HelloWorldType } from '@org/commons';
+import { HelloWorldType } from '@repo/commons';
 
 interface ApiResponse {
   data?: HelloWorldType;

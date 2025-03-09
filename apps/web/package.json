@@ -1,5 +1,5 @@
 {
-  "name": "@org/web",
+  "name": "@repo/web",
   "version": "1.0.0",
   "license": "ISC",
   "scripts": {
@@ -23,7 +23,7 @@
     "webpack": "^5.75.0",
     "webpack-cli": "^5.1.4",
     "webpack-dev-server": "^4.11.1",
-    "@org/eslint-config": "*"
+    "@repo/eslint-config": "*"
   },
   "dependencies": {
     "dotenv": "^16.0.3",
@@ -31,6 +31,6 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "typescript": "^4.9.4",
-    "@org/commons": "*"
+    "@repo/commons": "*"
   }
 }

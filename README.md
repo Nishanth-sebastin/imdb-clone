@@ -24,11 +24,11 @@
 ```sh
 # install turbo
 
-yarn global add turbo
+npm install -g turbo
 
-# install project 
+# install project
 
-yarn install
+ npm install
 ```
 
 
@@ -49,21 +49,21 @@ yarn install
 
 ```sh
 # launch parallel all dev app (api and web)
-yarn dev 
+npm run dev
 
 # launch only web app
-yarn web
+npm run web
 
 # launch only api app
-yarn api
+npm run api
 
 # launch workspace web
-# --command is replace by @org/web script ej : yarn @org/web lint
-yarn @org/web --command
+# --command is replace by @repo/web script ej : npm run @repo/web lint
+npm run @repo/web --command
 
 # launch workspace api
-# --command is replace by @org/web script ej : yarn @org/web dev
-yarn @org/api --command
+# --command is replace by @repo/web script ej : npm run @repo/web dev
+npm run @repo/api --command
 
 
 ```
@@ -79,7 +79,7 @@ yarn @org/api --command
 -   ESlint : [ESlint](https://eslint.org/) linter fix auto config VScode
 -   dotenv to configure .env
 
-## Inspiration for next improvement 
+## Inspiration for next improvement
 
 - CSS choices (postcss, inline-css, ...)
 - query call function API (fetch, axios)
