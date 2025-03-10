@@ -4,7 +4,7 @@
   "license": "ISC",
   "scripts": {
     "dev": "tsx watch src/server.ts",
-    "build": "esbuild src/server.ts --bundle --platform=node --outfile=dist/index.js --external:express --external:cors",
+    "build": "esbuild src/server.ts --bundle --platform=node --outfile=dist/server.js --external:express --external:cors",
     "start": "node dist/server.js",
     "type-check": "tsc",
     "lint": "eslint \"**/*.ts*\""

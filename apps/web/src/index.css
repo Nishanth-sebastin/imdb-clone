@@ -1,0 +1,120 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 3%;
+    --foreground: 0 0% 98%;
+
+    --card: 0 0% 5%;
+    --card-foreground: 0 0% 98%;
+
+    --popover: 0 0% 5%;
+    --popover-foreground: 0 0% 98%;
+
+    --primary: 47 65% 52%;
+    --primary-foreground: 0 0% 9%;
+
+    --secondary: 0 0% 9%;
+    --secondary-foreground: 0 0% 98%;
+
+    --muted: 0 0% 15%;
+    --muted-foreground: 0 0% 70%;
+
+    --accent: 47 65% 52%;
+    --accent-foreground: 0 0% 9%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 0 0% 15%;
+    --input: 0 0% 15%;
+    --ring: 47 65% 52%;
+
+    --radius: 0.75rem;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans;
+    font-family: 'Inter', sans-serif;
+  }
+
+  /* Add smooth scrolling to the entire page */
+  html {
+    scroll-behavior: smooth;
+  }
+
+  /* Add a subtle blur to backdrop elements */
+  .backdrop-blur {
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-cinema-900;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-cinema-700 rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-cinema-600;
+  }
+}
+
+@layer components {
+  .movie-card {
+    @apply relative flex flex-col overflow-hidden rounded-lg border border-cinema-800 
+           bg-card transition-all duration-300 ease-in-out hover:shadow-lg hover:shadow-black/20
+           hover:border-cinema-700/50 hover:scale-[1.02];
+  }
+
+  .movie-card-image {
+    @apply aspect-[2/3] w-full object-cover transition-all duration-500 ease-in-out;
+  }
+
+  .movie-card-content {
+    @apply flex flex-col p-4 space-y-2;
+  }
+
+  .movie-card-overlay {
+    @apply absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent opacity-0
+           transition-all duration-300 flex items-end justify-center p-4
+           hover:opacity-100;
+  }
+
+  .page-container {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 py-8 animate-fade-in;
+  }
+
+  .section-title {
+    @apply text-2xl font-semibold tracking-tight mb-6 flex items-center;
+  }
+
+  .section-title::before {
+    content: "";
+    @apply w-1 h-8 bg-gold mr-3 rounded;
+  }
+
+  .input-field {
+    @apply bg-cinema-800 border border-cinema-700 rounded-md p-3 text-white
+           focus:outline-none focus:ring-2 focus:ring-gold/50 transition-all;
+  }
+}
