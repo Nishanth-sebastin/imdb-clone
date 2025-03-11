@@ -1,5 +1,6 @@
-
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useState, useEffect, useContext, ReactNode } from 'react';
+import useAxios from '../helpers/api';
+import API from '../helpers/api';
 
 interface User {
   id: string;
@@ -9,89 +10,62 @@ interface User {
 
 interface AuthContextType {
   user: User | null;
-  isLoading: boolean;
-  signIn: (email: string, password: string) => Promise<void>;
-  signUp: (name: string, email: string, password: string) => Promise<void>;
-  signOut: () => void;
+  login: (credentials: { usernameOrEmail: string; password: string }) => Promise<void>;
+  logout: () => Promise<void>;
+  register: (credentials: { username: string; name: string; email: string; password: string }) => Promise<void>;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+const AuthContext = createContext<AuthContextType | null>(null);
 
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
-};
-
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-
+  const axiosClient = useAxios();
   useEffect(() => {
-    // Check for stored user in localStorage
-    const storedUser = localStorage.getItem('cinemaGroveUser');
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
+    const accessToken = localStorage.getItem('accessToken');
+    const checkAuth = async () => {
+      try {
+        const { data } = await axiosClient.get('/api/me');
+        setUser(data.data);
+      } catch {
+        setUser(null);
+      }
+    };
+    if (accessToken) {
+      checkAuth();
     }
-    setIsLoading(false);
   }, []);
 
-  const signIn = async (email: string, password: string) => {
-    // In a real app, this would call a server API
-    // For demo purposes, we're using a mock user
-    setIsLoading(true);
-    try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      const mockUser = {
-        id: '1',
-        name: 'John Doe',
-        email: email
-      };
-      
-      setUser(mockUser);
-      localStorage.setItem('cinemaGroveUser', JSON.stringify(mockUser));
-    } catch (error) {
-      console.error('Sign in error:', error);
-      throw error;
-    } finally {
-      setIsLoading(false);
-    }
+  const login = async (credentials: { usernameOrEmail: string; password: string }) => {
+    const isEmail = credentials.usernameOrEmail.includes('@');
+
+    const payload = isEmail
+      ? { email: credentials.usernameOrEmail, password: credentials.password }
+      : { username: credentials.usernameOrEmail, password: credentials.password };
+
+    const { data }: any = await axiosClient.post('/auth/login', payload);
+    localStorage.setItem('accessToken', data.accessToken);
+
+    const userData: any = await axiosClient.get('/api/me').then((res) => res.data);
+    setUser(userData);
   };
 
-  const signUp = async (name: string, email: string, password: string) => {
-    setIsLoading(true);
-    try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      const newUser = {
-        id: Date.now().toString(),
-        name,
-        email
-      };
-      
-      setUser(newUser);
-      localStorage.setItem('cinemaGroveUser', JSON.stringify(newUser));
-    } catch (error) {
-      console.error('Sign up error:', error);
-      throw error;
-    } finally {
-      setIsLoading(false);
-    }
+  const register = async (credentials: { name: string; username: string; email: string; password: string }) => {
+    await axiosClient.post('/auth/register', credentials).then((data) => {
+      login({ usernameOrEmail: credentials.username, password: credentials.password });
+    });
   };
 
-  const signOut = () => {
+  const logout = async () => {
+    await axiosClient.post('/auth/logout');
+    localStorage.removeItem('accessToken');
     setUser(null);
-    localStorage.removeItem('cinemaGroveUser');
   };
 
-  return (
-    <AuthContext.Provider value={{ user, isLoading, signIn, signUp, signOut }}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={{ user, login, logout, register }}>{children}</AuthContext.Provider>;
 };
+
+export const useAuth = () => {
+  return useContext(AuthContext);
+};
+
+export default AuthContext;

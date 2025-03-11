@@ -1,5 +1,4 @@
-
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { createMovie } from '@/lib/api';
@@ -10,15 +9,18 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
 import { ArrowLeft } from 'lucide-react';
+import MovieImageSelector from '@/components/MovieImageSelector';
+import { CastMember } from '@/types/movie';
+import CastCrewSelector from '@/components/CaseCrewSelector';
 
 const AddMovie = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [title, setTitle] = useState('');
   const [year, setYear] = useState('');
-  const [posterUrl, setPosterUrl] = useState('');
-  const [actors, setActors] = useState('');
   const [description, setDescription] = useState('');
+  const [images, setImages] = useState<string[]>([]);
+  const [cast, setCast] = useState<CastMember[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Redirect if not logged in
@@ -30,35 +32,54 @@ const AddMovie = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!title || !year || !posterUrl || !actors || !description) {
-      toast.error('Please fill out all fields');
+
+    if (!title || !year || !description) {
+      toast.error('Please fill out all required fields');
       return;
     }
-    
+
+    if (images.length === 0) {
+      toast.error('Please upload at least one image for the movie poster');
+      return;
+    }
+
+    // Ensure at least one cast member (either actor or producer)
+    if (cast.length === 0) {
+      toast.error('Please add at least one cast or crew member');
+      return;
+    }
+
+    // Validate that all cast members have names
+    const invalidCastMembers = cast.filter((member) => !member.name.trim());
+    if (invalidCastMembers.length > 0) {
+      toast.error('All cast and crew members must have names');
+      return;
+    }
+
     setIsSubmitting(true);
-    
+
     try {
       const yearNum = parseInt(year);
-      
+
       if (isNaN(yearNum) || yearNum < 1888 || yearNum > new Date().getFullYear()) {
         toast.error('Please enter a valid year');
         setIsSubmitting(false);
         return;
       }
-      
+
       await createMovie(
         {
           title,
           year: yearNum,
-          posterUrl,
-          actors,
-          description
+          posterUrl: images[0],
+          additionalImages: images.slice(1),
+          description,
+          cast,
         },
         user.id,
         user.name
       );
-      
+
       toast.success('Movie added successfully');
       navigate('/');
     } catch (error) {
@@ -72,12 +93,12 @@ const AddMovie = () => {
   return (
     <div className="flex flex-col min-h-screen bg-black">
       <Navbar />
-      
+
       <main className="flex-1 page-container">
-        <div className="max-w-2xl mx-auto animate-scale-in">
+        <div className="max-w-3xl mx-auto animate-scale-in">
           <div className="mb-6">
-            <Button 
-              variant="ghost" 
+            <Button
+              variant="ghost"
               className="text-cinema-400 hover:text-white hover:bg-cinema-800"
               onClick={() => navigate('/')}
             >
@@ -85,83 +106,65 @@ const AddMovie = () => {
               Back to Home
             </Button>
           </div>
-          
+
           <div className="bg-cinema-900 rounded-lg border border-cinema-800 p-6">
             <h1 className="text-2xl font-bold mb-6">Add New Movie</h1>
-            
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="space-y-2">
-                <Label htmlFor="title">Movie Title</Label>
-                <Input
-                  id="title"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  placeholder="Enter movie title"
-                  className="input-field"
-                  required
-                />
+
+            <form onSubmit={handleSubmit} className="space-y-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="title">Movie Title</Label>
+                    <Input
+                      id="title"
+                      value={title}
+                      onChange={(e) => setTitle(e.target.value)}
+                      placeholder="Enter movie title"
+                      className="input-field"
+                      required
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="year">Release Year</Label>
+                    <Input
+                      id="year"
+                      type="number"
+                      value={year}
+                      onChange={(e) => setYear(e.target.value)}
+                      placeholder="Enter release year"
+                      className="input-field"
+                      min="1888"
+                      max={new Date().getFullYear().toString()}
+                      required
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="description">Description</Label>
+                    <Textarea
+                      id="description"
+                      value={description}
+                      onChange={(e) => setDescription(e.target.value)}
+                      placeholder="Enter movie description"
+                      className="input-field min-h-[150px]"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <MovieImageSelector value={images} onChange={setImages} />
+                </div>
               </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="year">Release Year</Label>
-                <Input
-                  id="year"
-                  type="number"
-                  value={year}
-                  onChange={(e) => setYear(e.target.value)}
-                  placeholder="Enter release year"
-                  className="input-field"
-                  min="1888"
-                  max={new Date().getFullYear().toString()}
-                  required
-                />
+
+              <div className="border-t border-cinema-800 pt-6">
+                <CastCrewSelector cast={cast} onChange={setCast} />
               </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="poster">Poster URL</Label>
-                <Input
-                  id="poster"
-                  value={posterUrl}
-                  onChange={(e) => setPosterUrl(e.target.value)}
-                  placeholder="Enter poster image URL"
-                  className="input-field"
-                  required
-                />
-                <p className="text-xs text-cinema-400">
-                  Paste a direct link to an image (JPG, PNG, etc.)
-                </p>
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="actors">Actors</Label>
-                <Input
-                  id="actors"
-                  value={actors}
-                  onChange={(e) => setActors(e.target.value)}
-                  placeholder="Enter actors (comma separated)"
-                  className="input-field"
-                  required
-                />
-                <p className="text-xs text-cinema-400">
-                  E.g. Tom Hanks, Robin Wright, Gary Sinise
-                </p>
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="description">Description</Label>
-                <Textarea
-                  id="description"
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Enter movie description"
-                  className="input-field min-h-[100px]"
-                  required
-                />
-              </div>
-              
-              <div className="pt-4">
-                <Button 
-                  type="submit" 
+
+              <div className="pt-4 border-t border-cinema-800">
+                <Button
+                  type="submit"
                   className="w-full bg-gold hover:bg-gold/90 text-cinema-950 font-medium h-12"
                   disabled={isSubmitting}
                 >

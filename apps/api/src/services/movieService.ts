@@ -1,9 +1,27 @@
-import { prisma } from '@repo/db';
+import Movie from '../models/movie.model';
 
+/**
+ * Fetch all movies from the database
+ * @returns List of movies
+ */
 export async function getMovies() {
-    return await prisma.movie.findMany();
+  try {
+    return await Movie.find();
+  } catch (error) {
+    throw new Error(`Error fetching movies: ${(error as Error).message}`);
+  }
 }
 
-export async function createMovie(data: { title: string; releaseYear: number }) {
-    return await prisma.movie.create({ data });
+/**
+ * Create a new movie in the database
+ * @param data Movie details (name, year, producerId, actors)
+ * @returns Created movie object
+ */
+export async function createMovie(data: { name: string; year: number; producerId: string; actors: string[] }) {
+  try {
+    const movie = new Movie(data);
+    return await movie.save();
+  } catch (error) {
+    throw new Error(`Error creating movie: ${(error as Error).message}`);
+  }
 }
