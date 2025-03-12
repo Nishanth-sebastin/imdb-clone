@@ -1,6 +1,6 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Upload } from 'lucide-react';
+import { Loader, Upload } from 'lucide-react';
 import { toast } from 'sonner';
 import { FileUploadResult } from '@/types/movie';
 
@@ -13,41 +13,59 @@ interface FileUploaderProps {
 
 export default function FileUploader({ onChange, className = '', aspectRatio, multiple = false }: FileUploaderProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const uploadFile = async (file: File) => {
+    setIsLoading(true);
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const response = await fetch(`http://localhost:8085/uploads`, {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) throw new Error('Upload failed');
+
+      const data = await response.json();
+      return data.fileUrl;
+    } catch (error) {
+      console.log(error);
+      toast.error('Failed to upload image');
+      return null;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files || []);
-
     if (files.length === 0) return;
 
-    // Validate files
     for (const file of files) {
-      // Check file type
       if (!file.type.startsWith('image/')) {
         toast.error('Please upload only image files');
         return;
       }
-
-      // Check file size (limit to 5MB)
       if (file.size > 5 * 1024 * 1024) {
         toast.error('Each image size should be less than 5MB');
         return;
       }
     }
 
-    // Create file upload results
-    const results = files.map((file) => ({
-      url: URL.createObjectURL(file),
-      file: file,
+    const uploadedResults = await Promise.all(files.map(uploadFile));
+    const results = uploadedResults.filter(Boolean).map((url, index) => ({
+      url,
+      file: files[index],
     }));
 
-    // Call the onChange handler with appropriate format based on multiple prop
     if (multiple) {
       onChange(results);
     } else {
       onChange(results[0]);
     }
 
-    // Reset input
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
@@ -68,10 +86,16 @@ export default function FileUploader({ onChange, className = '', aspectRatio, mu
         type="button"
         variant="ghost"
         className={`${aspectRatio} w-full h-20 flex flex-col items-center justify-center space-y-2 text-cinema-400 hover:text-white hover:bg-cinema-700/50 border-2 border-dashed border-cinema-700 rounded-lg`}
-        onClick={() => fileInputRef.current?.click()}
+        onClick={() => !isLoading && fileInputRef.current?.click()}
       >
-        <Upload className="h-8 w-8" />
-        {multiple ? <span className="text-xs">Click to upload images</span> : null}
+        {isLoading ? (
+          <Loader className="h-8 w-8" />
+        ) : (
+          <>
+            <Upload className="h-8 w-8" />
+            {multiple ? <span className="text-xs">Click to upload images</span> : null}
+          </>
+        )}
       </Button>
     </div>
   );

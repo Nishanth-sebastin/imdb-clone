@@ -1,22 +1,36 @@
 import { Router } from 'express';
-import { getActors, createActor } from '../services/actorsService';
+import { getActors, createActor, getActorById } from '../services/actorsService';
 import { validateUser } from '../validations/userValidations';
 
 const router = Router();
 
 router.get('/', async (req, res, next) => {
   try {
-    const actors = await getActors();
-    res.json({ data: actors });
+    const searchText = req.query.search || '';
+    const actors = await getActors(searchText);
+    const formattedActors = actors.map((actor) => ({
+      id: actor._id,
+      name: actor.name,
+    }));
+
+    res.json({ data: formattedActors });
   } catch (error) {
     next(error);
   }
 });
 
-router.post('/', validateUser, async (req, res, next) => {
+router.get('/:id', async (req, res, next) => {
   try {
-    const newActor = await createActor(req.body);
-    res.status(201).json({ data: newActor });
+    const actor = await getActorById(req.params.id);
+    if (!actor) {
+      return res.status(404).json({ error: 'Actor not found' });
+    }
+    const formattedActor = {
+      id: actor._id,
+      name: actor.name,
+      imageUrl: actor.imageUrl ?? null,
+    };
+    res.json({ data: formattedActor });
   } catch (error) {
     next(error);
   }

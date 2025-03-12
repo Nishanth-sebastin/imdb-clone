@@ -1,26 +1,35 @@
 import { Router } from 'express';
-import { createMovie } from '../services/movieService';
-import { validateUser } from '../validations/userValidations';
-import { getProducers } from 'src/services/producersService';
-
+import { getProducerById, getProducers } from 'src/services/producersService';
 const router = Router();
 
 router.get('/', async (req, res, next) => {
-    try {
-        const users = await getProducers();
-        res.json({ data: users });
-    } catch (error) {
-        next(error);
-    }
+  try {
+    const searchText = req.query.search || '';
+    const producers = await getProducers(searchText);
+    const formattedProducers = producers.map((producer) => ({
+      id: producer._id,
+      name: producer.name,
+    }));
+    res.json({ data: formattedProducers });
+  } catch (error) {
+    next(error);
+  }
 });
 
-router.post('/', validateUser, async (req, res, next) => {
-    try {
-        const newUser = await createMovie(req.body);
-        res.status(201).json({ data: newUser });
-    } catch (error) {
-        next(error);
+router.get('/:id', async (req, res, next) => {
+  try {
+    const producer = await getProducerById(req.params.id);
+    if (!producer) {
+      return res.status(404).json({ error: 'Producer not found' });
     }
+    const formattedProducer = {
+      id: producer._id,
+      name: producer.name,
+      imageUrl: producer.imageUrl ?? null,
+    };
+    res.json({ data: formattedProducer });
+  } catch (error) {
+    next(error);
+  }
 });
-
 export default router;

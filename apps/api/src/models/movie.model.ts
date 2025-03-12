@@ -6,9 +6,9 @@ const movieSchema = new mongoose.Schema({
     type: String,
     default: uuidv4,
   },
-  name: {
+  title: {
     type: String,
-    required: [true, 'Movie name is required'],
+    required: [true, 'Movie title is required'],
     trim: true,
   },
   year: {
@@ -16,16 +16,47 @@ const movieSchema = new mongoose.Schema({
     required: [true, 'Release year is required'],
     min: [1888, 'First movie ever made was in 1888!'],
   },
-  producerId: {
+  description: {
     type: String,
-    required: [true, 'Producer is required'],
-    ref: 'Producer',
+    required: true,
   },
-  actors: [
+  images: [
     {
       type: String,
-      required: [true, 'At least one actor is required'],
-      ref: 'Actor',
+      required: true,
+      validate: {
+        validator: (array) => array.length > 0,
+        message: 'At least one image is required',
+      },
+    },
+  ],
+  user_id: {
+    type: String,
+    required: true,
+    ref: 'User',
+  },
+  overall_ratings: {
+    type: Number,
+    min: 0,
+    max: 5,
+    default: 0,
+  },
+  cast: [
+    {
+      _id: {
+        type: String,
+        default: uuidv4,
+      },
+      person: {
+        type: String,
+        required: true,
+        refPath: 'cast.role',
+      },
+      role: {
+        type: String,
+        required: true,
+        enum: ['actor', 'producer'], // Match model names
+      },
     },
   ],
 });

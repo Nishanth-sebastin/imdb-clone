@@ -5,6 +5,7 @@ export interface Movie {
   posterUrl: string;
   additionalImages?: string[];
   actors: string[];
+  overall_ratings: number;
   description: string;
   createdById: string | null;
   createdByName: string | null;

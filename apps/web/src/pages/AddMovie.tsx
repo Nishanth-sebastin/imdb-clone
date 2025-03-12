@@ -12,6 +12,9 @@ import { ArrowLeft } from 'lucide-react';
 import MovieImageSelector from '@/components/MovieImageSelector';
 import { CastMember } from '@/types/movie';
 import CastCrewSelector from '@/components/CaseCrewSelector';
+import { useMutationEvents } from '@/helpers/useMutationEvents';
+import { useMutation } from '@tanstack/react-query';
+import { saveMovie } from '@/action';
 
 const AddMovie = () => {
   const { user } = useAuth();
@@ -30,6 +33,32 @@ const AddMovie = () => {
     return null;
   }
 
+  const { mutate } = useMutationEvents(
+    useMutation({
+      mutationKey: ['saveMovie'],
+      mutationFn: ({ title, year, description, images, cast, userId }: any) => {
+        return saveMovie({
+          title,
+          year,
+          description,
+          images,
+          cast,
+          userId: user.id,
+        });
+      },
+    }),
+    {
+      onSuccess: () => {
+        setIsSubmitting(false);
+        navigate('/');
+        toast.success('Movie added successfully');
+      },
+      onError: () => {
+        setIsSubmitting(false);
+        toast.error('Failed to add movie');
+      },
+    }
+  );
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -57,37 +86,17 @@ const AddMovie = () => {
     }
 
     setIsSubmitting(true);
-
-    try {
-      const yearNum = parseInt(year);
-
-      if (isNaN(yearNum) || yearNum < 1888 || yearNum > new Date().getFullYear()) {
-        toast.error('Please enter a valid year');
-        setIsSubmitting(false);
-        return;
-      }
-
-      await createMovie(
-        {
-          title,
-          year: yearNum,
-          posterUrl: images[0],
-          additionalImages: images.slice(1),
-          description,
-          cast,
-        },
-        user.id,
-        user.name
-      );
-
-      toast.success('Movie added successfully');
-      navigate('/');
-    } catch (error) {
-      console.error('Error adding movie:', error);
-      toast.error('Failed to add movie');
-    } finally {
-      setIsSubmitting(false);
-    }
+    mutate({
+      title,
+      year,
+      images,
+      posterUrl: images[0],
+      additionalImages: images.slice(1),
+      description,
+      cast,
+      userId: user.id,
+      userName: user.name,
+    });
   };
 
   return (

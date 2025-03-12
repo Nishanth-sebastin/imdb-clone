@@ -6,7 +6,20 @@ import Movie from '../models/movie.model';
  */
 export async function getMovies() {
   try {
-    return await Movie.find();
+    return await Movie.find().select('title user year images user_id overall_ratings');
+  } catch (error) {
+    throw new Error(`Error fetching movies: ${(error as Error).message}`);
+  }
+}
+
+/**
+ * Fetch a movie by its ID from the database
+ * @param id Movie ID
+ * @returns Movie object
+ */
+export async function getMoviesById(id: string) {
+  try {
+    return await Movie.findById(id);
   } catch (error) {
     throw new Error(`Error fetching movies: ${(error as Error).message}`);
   }
@@ -17,9 +30,16 @@ export async function getMovies() {
  * @param data Movie details (name, year, producerId, actors)
  * @returns Created movie object
  */
-export async function createMovie(data: { name: string; year: number; producerId: string; actors: string[] }) {
+export async function createMovie(movieData: any, userId: string) {
   try {
-    const movie = new Movie(data);
+    const movie = new Movie({
+      ...movieData,
+      user_id: userId,
+      cast: movieData.cast.map((ref) => ({
+        person: ref.id,
+        role: ref.role.toLowerCase(),
+      })),
+    });
     return await movie.save();
   } catch (error) {
     throw new Error(`Error creating movie: ${(error as Error).message}`);
