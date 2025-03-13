@@ -9,62 +9,25 @@ import { Link } from 'react-router-dom';
 import { Film, PlusCircle } from 'lucide-react';
 import { useQueryEvents } from '@/helpers/useQueryEvents';
 import { useQuery } from '@tanstack/react-query';
-import { getAllMovies, getCommunityMovies, getUserMovies } from '@/action';
+import { getMovies } from '@/action';
 
 const Index = () => {
   const { user } = useAuth();
   const [communityMovies, setCommunityMovies] = useState<Movie[]>([]);
   const [userMovies, setUserMovies] = useState<Movie[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  useQueryEvents(
-    useQuery({
-      queryKey: ['get_community_movies', user],
-      queryFn: async () => {
-        return await getCommunityMovies();
-      },
-      enabled: !!user,
-    }),
-    {
-      onSuccess: (data) => {
-        setCommunityMovies(data);
-        setIsLoading(false);
-      },
-      onError: (error) => {
-        console.error(error);
-        setIsLoading(false);
-      },
-    }
-  );
 
   useQueryEvents(
     useQuery({
       queryKey: ['getAllMovies', user],
       queryFn: async () => {
-        return await getAllMovies();
+        return await getMovies();
       },
-      enabled: !user,
     }),
     {
       onSuccess: (data) => {
-        setCommunityMovies(data);
-        setIsLoading(false);
-      },
-      onError: (error) => {
-        console.error(error);
-        setIsLoading(false);
-      },
-    }
-  );
-
-  useQueryEvents(
-    useQuery({
-      queryKey: ['get_user_movies', user],
-      queryFn: async () => await getUserMovies(),
-      enabled: !!user,
-    }),
-    {
-      onSuccess: (data) => {
-        setUserMovies(data);
+        setCommunityMovies(data.communityMovies);
+        setUserMovies(data.userMovies);
         setIsLoading(false);
       },
       onError: (error) => {
