@@ -33,7 +33,6 @@ const AddMovie = () => {
     return null;
   }
 
-  console.log(id);
   const { isLoading } = useQueryEvents(
     useQuery({
       queryKey: ['get_single_movie', id],
