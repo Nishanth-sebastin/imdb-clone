@@ -56,7 +56,6 @@ router.get('/:id', optionalAuthMiddleware, async (req, res) => {
       return res.status(404).json({ error: 'Movie not found' });
     }
 
-    console.log(movie.cast);
     const castDetails = await Promise.all(
       movie.cast.map(async (castMember) => {
         let personDetails;
@@ -65,9 +64,9 @@ router.get('/:id', optionalAuthMiddleware, async (req, res) => {
         } else {
           personDetails = await getProducerById(castMember.person);
         }
-        console.log(personDetails);
+
         return {
-          id: castMember.id || personDetails.id,
+          id: castMember.person || personDetails.id,
           name: personDetails.name,
           role: castMember.role,
           imageUrl: personDetails.imageUrl || '',
@@ -100,8 +99,35 @@ router.post('/', authMiddleware, async (req, res, next) => {
   try {
     const { cast, ...movieData } = req.body;
     const userId = req.user.user_id;
+    // Process cast members
+    const processedCast = await Promise.all(
+      cast.map(async (member) => {
+        try {
+          // Existing cast member - just use reference
+          if (member.id) return { id: member.id, role: member.role };
 
-    const { processedCast } = await processCastMembers(cast);
+          // New cast member - create in appropriate collection
+          let result;
+          if (member.role === 'actor') {
+            result = await createActor({
+              name: member.name,
+              imageUrl: member.imageUrl,
+            });
+          } else if (member.role === 'producer') {
+            result = await createProducer({
+              name: member.name,
+              imageUrl: member.imageUrl,
+            });
+          } else {
+            throw new Error(`Invalid role: ${member.role}`);
+          }
+
+          return { id: result._id, role: member.role };
+        } catch (error) {
+          throw new Error(`Failed to process cast member: ${error.message}`);
+        }
+      })
+    );
 
     // Create movie with processed cast references
     const newMovie = await createMovie(
@@ -113,11 +139,10 @@ router.post('/', authMiddleware, async (req, res, next) => {
     );
 
     await Promise.all(
-      processedCast.map(({ person, role }) =>
+      processedCast.map(({ id, role }) =>
         (role === 'actor' ? Actor : Producer).findByIdAndUpdate(id, { $addToSet: { movies: newMovie._id } })
       )
     );
-
     res.status(201).json({ data: newMovie });
   } catch (error) {
     next(error);

@@ -17,7 +17,7 @@ export const updateMovie = async (id: string, payload: any) => {
   const { data } = await axiosClient.patch(`/api/movies/${id}`, {
     ...payload,
   });
-  return data.data;
+  return data;
 };
 
 export const getMovies = async () => {

@@ -6,7 +6,6 @@ export const processCastMembers = async (cast: any) => {
   const newMemberIds = new Set();
 
   for (const member of cast) {
-    console.log(member);
     if (member.id) {
       processedCast.push({ id: member.id, role: member.role });
       continue;
