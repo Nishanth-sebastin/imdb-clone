@@ -1,24 +1,3 @@
-<p align="center">
-  <img src="https://i.postimg.cc/DwSYQmc9/Capture-d-e-cran-2023-08-24-a-22-56-12.png" />
-</p>
-
-<p align="center">
-  <b>Monorepo template using TurboRepo</b><br/>
-  App : React, Node <br />
-  Packages : Commons, eslint-config
-</p>
-<br/>
-
-[![View](https://img.shields.io/badge/monorepo-%201.0.0-brightgreen)](https://github.com/quentinlao/monorepo/tree/main)
-
-
-`Monorepo` is a template used to create an monorepo app based on [Monorepo tools](https://monorepo.tools/) structure. This project is designed for strict minimum configuration for an application typescript project.
-
--   **NodeJS** Application backend with an express API
--   **ReactJS** Application simple react app without CRA
--   **Commons** Libs for commons (utils, types, ...)
--   **Eslint-config** Global eslint config use for apps
-
 ## Installation
 
 ```sh
@@ -43,6 +22,68 @@ npm install -g turbo
 | `packages/commons`                 | libs for commons utils, constants, enums |
 | `packages/eslint-config`                 | libs for global eslint configuration |
 
+## Environment Setup
+
+To set up the environment variables, follow these steps:
+
+### 1. Copy `.env.example` to `.env`
+
+Run the following command in both the `api` and `web` directories:
+
+```sh
+cp api/.env.example api/.env
+cp web/.env.example web/.env
+```
+
+### 2. Provide Necessary Values
+
+Open the `.env` files in both directories and replace placeholder values with actual credentials. Example:
+
+#### `api/.env`
+```env
+HOST=http://localhost
+API_PORT=8085
+CLIENT_URL=http://localhost:8080
+DATABASE_URL=<YOUR_DATABASE_URL>
+ACCESS_SECRET=<YOUR_ACCESS_SECRET>
+REFRESH_SECRET=<YOUR_REFRESH_SECRET>
+CLOUDINARY_NAME=<YOUR_CLOUDINARY_NAME>
+CLOUDINARY_KEY=<YOUR_CLOUDINARY_KEY>
+CLOUDINARY_SECRET=<YOUR_CLOUDINARY_SECRET>
+```
+
+#### `web/.env`
+```env
+NEXT_PUBLIC_API_URL=http://localhost:8085
+NEXT_PUBLIC_CLIENT_URL=http://localhost:8080
+```
+
+### 3. Generate New Secrets (If Needed)
+
+For `ACCESS_SECRET` and `REFRESH_SECRET`, you can generate random secret keys using:
+
+```sh
+openssl rand -hex 32
+```
+
+Replace `<YOUR_ACCESS_SECRET>` and `<YOUR_REFRESH_SECRET>` with the generated values.
+
+### 4. Save and Restart
+After updating the `.env` files, go to the root folder of the project and run :
+
+```sh
+ npm run dev
+ npm run dev
+```
+
+## Database Seeding
+
+After setting up the correct environment configurations, run the following command to seed the database with sample data:
+```sh
+npm run db:seed
+```
+
+This will populate the database with initial data required for the application.
 
 
 ## Usage
