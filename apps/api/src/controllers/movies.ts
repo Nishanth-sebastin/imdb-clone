@@ -21,14 +21,14 @@ router.get('/', optionalAuthMiddleware, async (req, res, next) => {
 
     const userMovies = userId
       ? movies
-        .filter((movie) => movie.user_id == userId)
-        .map((movie) => ({
-          id: movie._id,
-          title: movie.title,
-          year: movie.year,
-          images: movie.images,
-          overall_ratings: movie.overall_ratings,
-        }))
+          .filter((movie) => movie.user_id == userId)
+          .map((movie) => ({
+            id: movie._id,
+            title: movie.title,
+            year: movie.year,
+            images: movie.images,
+            overall_ratings: movie.overall_ratings,
+          }))
       : [];
 
     const communityMovies = movies
@@ -113,7 +113,7 @@ router.post('/', authMiddleware, async (req, res, next) => {
     );
 
     await Promise.all(
-      processedCast.map(({ id, role }) =>
+      processedCast.map(({ person, role }) =>
         (role === 'actor' ? Actor : Producer).findByIdAndUpdate(id, { $addToSet: { movies: newMovie._id } })
       )
     );

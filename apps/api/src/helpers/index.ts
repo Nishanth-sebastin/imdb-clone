@@ -6,19 +6,22 @@ export const processCastMembers = async (cast: any) => {
   const newMemberIds = new Set();
 
   for (const member of cast) {
+    console.log(member);
     if (member.id) {
       processedCast.push({ id: member.id, role: member.role });
       continue;
     }
 
-    const Model = member.role === 'actor' ? Actor : Producer;
-    const newMember = await Model.create({
-      name: member.name,
-      imageUrl: member.imageUrl,
-      movies: [],
-    });
-
-    processedCast.push({ id: newMember._id, role: member.role });
+    let newMember = [];
+    if (!member.id) {
+      const Model = member.role === 'actor' ? Actor : Producer;
+      newMember = await Model.create({
+        name: member.name,
+        imageUrl: member.imageUrl,
+        movies: [],
+      });
+      processedCast.push({ id: newMember._id, role: member.role });
+    }
     newMemberIds.add(newMember._id);
   }
 
