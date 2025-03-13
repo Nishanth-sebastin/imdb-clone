@@ -167,7 +167,7 @@ const MovieDetail = () => {
           <div className="animate-slide-in" style={{ animationDelay: '0.1s' }}>
             <div className="animate-slide-in" style={{ animationDelay: '0.1s' }}>
               <MovieImageCarousel images={movie.images} altText={movie.title} className="animate-slide-in" />
-              {movie.is_user_movie && (
+              {user && movie.is_user_movie && (
                 <div className="mt-4">
                   <Button
                     className="w-full bg-gold hover:bg-gold/90 text-cinema-950 font-medium"

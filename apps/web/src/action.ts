@@ -20,18 +20,8 @@ export const updateMovie = async (id: string, payload: any) => {
   return data.data;
 };
 
-export const getUserMovies = async () => {
-  const { data } = await axiosClient.get('/api/movies/usermovies');
-  return data.data;
-};
-
-export const getCommunityMovies = async () => {
-  const { data } = await axiosClient.get('/api/movies/communitymovies');
-  return data.data;
-};
-
-export const getAllMovies = async () => {
-  const { data } = await axiosClient.get('/allmovies');
+export const getMovies = async () => {
+  const { data } = await axiosClient.get('/api/movies');
   return data.data;
 };
 

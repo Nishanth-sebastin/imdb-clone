@@ -1,5 +1,7 @@
 import { Router } from 'express';
 import { mock } from 'node:test';
+import optionalAuthMiddleware from 'src/middlewares/optionalAuth';
+import authMiddleware from 'src/middlewares/auth';
 import Actor from 'src/models/actors.model';
 import Producer from 'src/models/producer.model';
 import { createActor, getActorById } from 'src/services/actorsService';
@@ -9,34 +11,24 @@ import { validateUser } from '../validations/userValidations';
 
 const router = Router();
 
-router.get('/usermovies', async (req, res, next) => {
+router.get('/', optionalAuthMiddleware, async (req, res, next) => {
   try {
     const movies = await getMovies();
     const userId = req.user?.user_id || null;
 
-    const formattedMovies = movies
-      .filter((movie) => userId && movie.user_id == userId)
-      .map((movie) => ({
-        id: movie._id.toString(),
-        title: movie.title,
-        year: movie.year,
-        images: movie.images,
-        overall_ratings: movie.overall_ratings,
-      }));
+    const userMovies = userId
+      ? movies
+          .filter((movie) => movie.user_id == userId)
+          .map((movie) => ({
+            id: movie._id.toString(),
+            title: movie.title,
+            year: movie.year,
+            images: movie.images,
+            overall_ratings: movie.overall_ratings,
+          }))
+      : [];
 
-    res.json({ data: formattedMovies });
-  } catch (error) {
-    next(error);
-  }
-});
-
-router.get('/communitymovies', async (req, res) => {
-  try {
-    const movies = await getMovies();
-    const userId = req.user?.user_id;
-    let formattedMovies = [];
-
-    formattedMovies = movies
+    const communityMovies = movies
       .filter((movie) => !userId || movie.user_id !== userId)
       .map((movie) => ({
         id: movie._id.toString(),
@@ -46,14 +38,13 @@ router.get('/communitymovies', async (req, res) => {
         overall_ratings: movie.overall_ratings,
       }));
 
-    res.json({ data: formattedMovies });
+    res.json({ data: { userMovies, communityMovies } });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Internal Server Error' });
+    next(error);
   }
 });
 
-router.get('/:id', async (req, res) => {
+router.get('/:id', optionalAuthMiddleware, async (req, res) => {
   const movieId = req.params.id;
 
   try {
@@ -87,9 +78,12 @@ router.get('/:id', async (req, res) => {
       year: movie.year,
       images: movie.images,
       cast: castDetails,
-      is_user_movie: movie.user_id === req.user.user_id,
       overall_ratings: movie.overall_ratings,
     };
+
+    if (req.user) {
+      formattedMovie.is_user_movie = movie.user_id === req.user.user_id;
+    }
 
     res.json({ data: formattedMovie });
   } catch (error) {
@@ -98,7 +92,7 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-router.post('/', async (req, res, next) => {
+router.post('/', authMiddleware, async (req, res, next) => {
   try {
     const { cast, ...movieData } = req.body;
     const userId = req.user.user_id;
