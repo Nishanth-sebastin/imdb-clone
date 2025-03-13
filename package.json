@@ -9,6 +9,7 @@
     "dev": "turbo run dev --parallel",
     "lint": "turbo lint",
     "web": "turbo run dev --filter @repo/web",
+    "db:seed": "turbo run db:seed --filter @repo/api",
     "api": "turbo run dev --filter @repo/web",
     "@repo/web": "npm run --workspace @repo/web",
     "@repo/api": "npm run --workspace @repo/api",

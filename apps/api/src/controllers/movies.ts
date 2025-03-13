@@ -6,8 +6,11 @@ import Actor from 'src/models/actors.model';
 import Producer from 'src/models/producer.model';
 import { createActor, getActorById } from 'src/services/actorsService';
 import { createProducer, getProducerById } from 'src/services/producersService';
-import { createMovie, getMovies, getMoviesById } from '../services/movieService';
+import { createMovie, getMovies, getMoviesById, updateMovie } from '../services/movieService';
 import { validateUser } from '../validations/userValidations';
+import Movie from 'src/models/movie.model';
+import { processCastMembers, updateExistingMemberReferences } from 'src/helpers';
+import User from 'src/models/user.model';
 
 const router = Router();
 
@@ -20,7 +23,7 @@ router.get('/', optionalAuthMiddleware, async (req, res, next) => {
       ? movies
           .filter((movie) => movie.user_id == userId)
           .map((movie) => ({
-            id: movie._id.toString(),
+            id: movie._id,
             title: movie.title,
             year: movie.year,
             images: movie.images,
@@ -31,7 +34,7 @@ router.get('/', optionalAuthMiddleware, async (req, res, next) => {
     const communityMovies = movies
       .filter((movie) => !userId || movie.user_id !== userId)
       .map((movie) => ({
-        id: movie._id.toString(),
+        id: movie._id,
         title: movie.title,
         year: movie.year,
         images: movie.images,
@@ -63,7 +66,7 @@ router.get('/:id', optionalAuthMiddleware, async (req, res) => {
         }
 
         return {
-          id: castMember.id || personDetails.id,
+          id: castMember.person || personDetails.id,
           name: personDetails.name,
           role: castMember.role,
           imageUrl: personDetails.imageUrl || '',
@@ -72,7 +75,7 @@ router.get('/:id', optionalAuthMiddleware, async (req, res) => {
     );
 
     const formattedMovie = {
-      id: movie._id.toString(),
+      id: movie._id,
       title: movie.title,
       description: movie.description,
       year: movie.year,
@@ -140,8 +143,32 @@ router.post('/', authMiddleware, async (req, res, next) => {
         (role === 'actor' ? Actor : Producer).findByIdAndUpdate(id, { $addToSet: { movies: newMovie._id } })
       )
     );
-
     res.status(201).json({ data: newMovie });
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.patch('/:id', authMiddleware, async (req, res, next) => {
+  try {
+    const movieId = req.params.id;
+    const { cast, ...movieData } = req.body;
+    const userId = req.user.user_id;
+
+    // 1. Process new cast members
+    const { processedCast, newMemberIds } = await processCastMembers(cast);
+    await updateMovie(movieId, { ...movieData, cast: processedCast }, userId);
+
+    // 2. Remove the movie ID from all existing actors and producers
+    await Promise.all([
+      Actor.updateMany({ movies: movieId }, { $pull: { movies: movieId } }),
+      Producer.updateMany({ movies: movieId }, { $pull: { movies: movieId } }),
+    ]);
+
+    // 3. Update new/existing cast members with the movie ID
+    await updateExistingMemberReferences(processedCast, newMemberIds, movieId);
+
+    res.status(200).json({ message: 'Movie cast updated successfully' });
   } catch (error) {
     next(error);
   }

@@ -45,3 +45,32 @@ export async function createMovie(movieData: any, userId: string) {
     throw new Error(`Error creating movie: ${(error as Error).message}`);
   }
 }
+
+/**
+ * Update a movie in the database
+ * @param data Movie details (name, year, producerId, actors)
+ * @returns Updated movie object
+ */
+export async function updateMovie(movieId: string, movieData: any, userId: string) {
+  try {
+    const updatedMovie = await Movie.findOneAndUpdate(
+      { _id: movieId, user_id: userId }, // Find movie by ID and ensure the user owns it
+      {
+        title: movieData.title,
+        year: movieData.year,
+        producer_id: movieData.producerId,
+        cast: movieData.cast.map((ref) => ({
+          person: ref.id,
+          role: ref.role.toLowerCase(),
+        })),
+      },
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedMovie) throw new Error('Movie not found or unauthorized');
+
+    return updatedMovie;
+  } catch (error) {
+    throw new Error(`Error updating movie: ${(error as Error).message}`);
+  }
+}

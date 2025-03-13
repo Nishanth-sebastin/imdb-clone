@@ -33,7 +33,6 @@ const AddMovie = () => {
     return null;
   }
 
-  console.log(id);
   const { isLoading } = useQueryEvents(
     useQuery({
       queryKey: ['get_single_movie', id],
@@ -42,7 +41,6 @@ const AddMovie = () => {
     }),
     {
       onSuccess: (data) => {
-        console.log(data);
         setTitle(data.title);
         setYear(data.year);
         setDescription(data.description);
@@ -162,9 +160,9 @@ const AddMovie = () => {
         userName: user.name,
       });
     }
+    // setIsSubmitting(false);
   };
 
-  console.log(cast);
   return (
     <div className="flex flex-col min-h-screen bg-black">
       <Navbar />

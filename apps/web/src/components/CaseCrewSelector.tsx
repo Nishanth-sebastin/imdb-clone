@@ -179,7 +179,6 @@ export default function CastCrewSelector({ cast, onChange }: CastCrewSelectorPro
 
   const handleCreateNew = () => {
     if (selectedMemberIndex !== null && searchQuery) {
-      console.log('calling');
       // Create a new entry with the current search query as name
       const newCast = [...cast];
       newCast[selectedMemberIndex] = {
