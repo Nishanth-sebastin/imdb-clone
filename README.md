@@ -54,8 +54,7 @@ CLOUDINARY_SECRET=<YOUR_CLOUDINARY_SECRET>
 
 #### `web/.env`
 ```env
-NEXT_PUBLIC_API_URL=http://localhost:8085
-NEXT_PUBLIC_CLIENT_URL=http://localhost:8080
+BACKEND_URL=http://localhost:8085
 ```
 
 ### 3. Generate New Secrets (If Needed)
