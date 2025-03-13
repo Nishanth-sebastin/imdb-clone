@@ -9,7 +9,7 @@ import NotFound from './pages/NotFound';
 export const router = createBrowserRouter([
   { path: '/', element: <Index /> }, // Now '/' is protected
   { path: '/add-movie', element: <AddMovie /> },
-  { path: '/edit-movie/:id', element: <EditMovie /> },
+  { path: '/edit-movie/:id', element: <AddMovie /> },
   { path: '/movie/:id', element: <MovieDetail /> },
   { path: '*', element: <NotFound /> },
 ]);

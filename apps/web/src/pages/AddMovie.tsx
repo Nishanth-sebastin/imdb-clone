@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
-import { createMovie } from '@/lib/api';
 import Navbar from '@/components/Navbar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,11 +12,13 @@ import MovieImageSelector from '@/components/MovieImageSelector';
 import { CastMember } from '@/types/movie';
 import CastCrewSelector from '@/components/CaseCrewSelector';
 import { useMutationEvents } from '@/helpers/useMutationEvents';
-import { useMutation } from '@tanstack/react-query';
-import { saveMovie } from '@/action';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { getMoviesById, saveMovie, updateMovie } from '@/action';
+import { useQueryEvents } from '@/helpers/useQueryEvents';
 
 const AddMovie = () => {
   const { user } = useAuth();
+  const { id } = useParams();
   const navigate = useNavigate();
   const [title, setTitle] = useState('');
   const [year, setYear] = useState('');
@@ -25,7 +26,6 @@ const AddMovie = () => {
   const [images, setImages] = useState<string[]>([]);
   const [cast, setCast] = useState<CastMember[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
   // Redirect if not logged in
   if (!user) {
     navigate('/');
@@ -33,7 +33,29 @@ const AddMovie = () => {
     return null;
   }
 
-  const { mutate } = useMutationEvents(
+  console.log(id);
+  const { isLoading } = useQueryEvents(
+    useQuery({
+      queryKey: ['get_single_movie', id],
+      queryFn: async () => await getMoviesById(id),
+      enabled: !!id,
+    }),
+    {
+      onSuccess: (data) => {
+        console.log(data);
+        setTitle(data.title);
+        setYear(data.year);
+        setDescription(data.description);
+        setImages(data.images);
+        setCast(data.cast);
+      },
+      onError: (error) => {
+        console.error(error);
+      },
+    }
+  );
+
+  const { mutate: saveMovieMutate } = useMutationEvents(
     useMutation({
       mutationKey: ['saveMovie'],
       mutationFn: ({ title, year, description, images, cast, userId }: any) => {
@@ -59,6 +81,34 @@ const AddMovie = () => {
       },
     }
   );
+
+  const { mutate: updateMovieMutate } = useMutationEvents(
+    useMutation({
+      mutationKey: ['updateMovie'],
+      mutationFn: ({ id, title, year, description, images, cast, userId }: any) => {
+        return updateMovie(id, {
+          title,
+          year,
+          description,
+          images,
+          cast,
+          userId: user.id,
+        });
+      },
+    }),
+    {
+      onSuccess: () => {
+        setIsSubmitting(false);
+        navigate('/');
+        toast.success('Movie updated successfully');
+      },
+      onError: () => {
+        setIsSubmitting(false);
+        toast.error('Failed to update movie');
+      },
+    }
+  );
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -86,19 +136,35 @@ const AddMovie = () => {
     }
 
     setIsSubmitting(true);
-    mutate({
-      title,
-      year,
-      images,
-      posterUrl: images[0],
-      additionalImages: images.slice(1),
-      description,
-      cast,
-      userId: user.id,
-      userName: user.name,
-    });
+    if (id) {
+      updateMovieMutate({
+        id,
+        title,
+        year,
+        images,
+        posterUrl: images[0],
+        additionalImages: images.slice(1),
+        description,
+        cast,
+        userId: user.id,
+        userName: user.name,
+      });
+    } else {
+      saveMovieMutate({
+        title,
+        year,
+        images,
+        posterUrl: images[0],
+        additionalImages: images.slice(1),
+        description,
+        cast,
+        userId: user.id,
+        userName: user.name,
+      });
+    }
   };
 
+  console.log(cast);
   return (
     <div className="flex flex-col min-h-screen bg-black">
       <Navbar />
@@ -117,7 +183,7 @@ const AddMovie = () => {
           </div>
 
           <div className="bg-cinema-900 rounded-lg border border-cinema-800 p-6">
-            <h1 className="text-2xl font-bold mb-6">Add New Movie</h1>
+            <h1 className="text-2xl font-bold mb-6">{id ? 'Edit' : 'Add New'} Movie</h1>
 
             <form onSubmit={handleSubmit} className="space-y-8">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -177,7 +243,7 @@ const AddMovie = () => {
                   className="w-full bg-gold hover:bg-gold/90 text-cinema-950 font-medium h-12"
                   disabled={isSubmitting}
                 >
-                  {isSubmitting ? 'Adding Movie...' : 'Add Movie'}
+                  {isSubmitting ? (id ? 'Updating Movie...' : 'Adding Movie...') : id ? 'Edit Movie' : 'Add movie'}
                 </Button>
               </div>
             </form>

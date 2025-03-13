@@ -13,6 +13,13 @@ export const saveMovie = async (payload: any) => {
   return data.data;
 };
 
+export const updateMovie = async (id: string, payload: any) => {
+  const { data } = await axiosClient.patch(`/api/movies/${id}`, {
+    ...payload,
+  });
+  return data.data;
+};
+
 export const getUserMovies = async () => {
   const { data } = await axiosClient.get('/api/movies/usermovies');
   return data.data;
@@ -30,5 +37,17 @@ export const getAllMovies = async () => {
 
 export const getMoviesById = async (id: string) => {
   const { data } = await axiosClient.get(`/api/movies/${id}`);
+  return data.data;
+};
+
+export const getMovieFeedback = async (id: string) => {
+  const { data } = await axiosClient.get(`/api/movies/${id}/feedback`);
+  return data.data;
+};
+
+export const addReview = async (id: string, review: any) => {
+  const { data } = await axiosClient.post(`/api/movies/${id}/feedback`, {
+    review,
+  });
   return data.data;
 };

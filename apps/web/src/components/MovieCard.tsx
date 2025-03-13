@@ -45,7 +45,7 @@ export default function MovieCard({ movie }: MovieCardProps) {
         </div>
         <div className="flex items-center space-x-1">
           <Star className="h-4 w-4 text-gold" />
-          <span className="text-sm">4{/* {movie.rating > 0 ? movie.rating.toFixed(1) : 'No ratings'} */}</span>
+          <span className="text-sm"> {movie.overall_ratings > 0 ? movie.rating.toFixed(1) : 'No ratings'}</span>
         </div>
       </div>
     </div>

@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Loader, Upload } from 'lucide-react';
 import { toast } from 'sonner';
 import { FileUploadResult } from '@/types/movie';
+import { LoadingSpinner } from './ui/loading-spinner';
 
 interface FileUploaderProps {
   onChange: (result: FileUploadResult | FileUploadResult[]) => void;
@@ -89,7 +90,7 @@ export default function FileUploader({ onChange, className = '', aspectRatio, mu
         onClick={() => !isLoading && fileInputRef.current?.click()}
       >
         {isLoading ? (
-          <Loader className="h-8 w-8" />
+          <LoadingSpinner className="h-8 w-8" />
         ) : (
           <>
             <Upload className="h-8 w-8" />

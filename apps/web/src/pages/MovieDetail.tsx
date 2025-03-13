@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
 import { ArrowLeft, Calendar, Edit, Star, User } from 'lucide-react';
-import { getMoviesById } from '@/action';
+import { addReview, getMovieFeedback, getMoviesById } from '@/action';
 import MovieImageCarousel from '@/components/MovieImageCarousel';
 
 const MovieDetail = () => {
@@ -21,6 +21,8 @@ const MovieDetail = () => {
   const [reviewComment, setReviewComment] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [hoverRating, setHoverRating] = useState(0);
+
+  const [feedback, setFeedback] = useState({ rating: 0, reviews: [] });
 
   useEffect(() => {
     const fetchMovie = async () => {
@@ -49,6 +51,32 @@ const MovieDetail = () => {
     fetchMovie();
   }, [id, navigate]);
 
+  // useEffect(() => {
+  //   const fetchMovieFeedback = async () => {
+  //     if (!id) return;
+
+  //     setIsLoading(true);
+  //     try {
+  //       const movieFeedback = await getMovieFeedback(id);
+
+  //       if (!movieFeedback) {
+  //         toast.error('Movie not found');
+  //         navigate('/');
+  //         return;
+  //       }
+
+  //       setFeedback(movieFeedback);
+  //     } catch (error) {
+  //       console.error('Error fetching movie:', error);
+  //       toast.error('Failed to load movie data');
+  //       navigate('/');
+  //     } finally {
+  //       setIsLoading(false);
+  //     }
+  //   };
+  //   fetchMovieFeedback();
+  // }, [id, navigate]);
+
   const handleReviewSubmit = async () => {
     if (!user) {
       toast.error('You must be logged in to leave a review');
@@ -67,23 +95,10 @@ const MovieDetail = () => {
       return;
     }
 
-    // Check if user has already reviewed this movie
-    const hasReviewed = movie.reviews.some((review) => review.userId === user.id);
-    if (hasReviewed) {
-      toast.error('You have already reviewed this movie');
-      return;
-    }
-
-    // Check if user is trying to review their own movie
-    if (movie.createdById === user.id) {
-      toast.error('You cannot review your own movie');
-      return;
-    }
-
     setIsSubmitting(true);
 
     try {
-      const updatedMovie = await addReview(id, user.id, user.name, userRating, reviewComment);
+      const updatedMovie = await addReview(id, { userId: user.id, userName: user.name, userRating, reviewComment });
 
       setMovie(updatedMovie);
       setUserRating(0);
@@ -173,7 +188,9 @@ const MovieDetail = () => {
                 <h1 className="text-3xl font-bold">{movie.title}</h1>
                 <div className="flex items-center space-x-1 bg-gold/20 px-3 py-1 rounded-full">
                   <Star className="h-5 w-5 text-gold" />
-                  {/* <span className="font-semibold text-gold">{movie.rating > 0 ? movie.rating.toFixed(1) : 'N/A'}</span> */}
+                  <span className="font-semibold text-gold">
+                    {movie.overall_ratings > 0 ? movie.overall_ratings.toFixed(1) : 'N/A'}
+                  </span>
                 </div>
               </div>
 
@@ -189,26 +206,15 @@ const MovieDetail = () => {
                 <p className="text-cinema-300 leading-relaxed">{movie.description}</p>
               </div>
 
-              <div className="mt-6">
-                <h2 className="text-xl font-semibold mb-2">Cast</h2>
-                <div className="flex flex-wrap gap-2">
-                  {movie.cast.map((actor, index) => (
-                    <span key={index} className="text-sm bg-cinema-800 rounded-full px-3 py-1">
-                      {actor.name}
-                    </span>
-                  ))}
-                </div>
-              </div>
-
               {/* Review Form */}
-              {/* {canReview && (
+              {/* {!movie.is_user_movie && (
                 <div className="mt-8 border-t border-cinema-800 pt-6 animate-fade-in">
                   <h2 className="text-xl font-semibold mb-4">Leave a Review</h2>
 
                   <div className="mb-4">
                     <div className="flex items-center space-x-1 mb-2">
                       <span className="text-sm text-cinema-400 mr-2">Your Rating:</span>
-                      {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((rating) => (
+                      {[1, 2, 3, 4, 5].map((rating) => (
                         <button
                           key={rating}
                           type="button"
@@ -226,7 +232,7 @@ const MovieDetail = () => {
                           />
                         </button>
                       ))}
-                      {userRating > 0 && <span className="ml-2 text-gold font-medium">{userRating}/10</span>}
+                      {userRating > 0 && <span className="ml-2 text-gold font-medium">{userRating}/5</span>}
                     </div>
 
                     <Textarea
@@ -292,6 +298,31 @@ const MovieDetail = () => {
             </div>
           )}
         </div> */}
+
+        <div className="mt-12 animate-slide-in" style={{ animationDelay: '0.4s' }}>
+          <h2 className="section-title mb-6">Cast & Crew</h2>
+
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+            {movie.cast.map((castMember) => (
+              <div
+                key={castMember.id}
+                className="bg-cinema-900 h-[250px] w-[150px] rounded-lg border border-cinema-800 overflow-hidden animate-scale-in transition-transform hover:scale-105"
+              >
+                <div className="aspect-square h-[180px] overflow-hidden">
+                  <img
+                    src={castMember.imageUrl || 'https://avatar.iran.liara.run/public/9'}
+                    alt={castMember.name}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <div className="p-3 text-center">
+                  <h3 className="font-semibold truncate">{castMember.name}</h3>
+                  <p className="text-xs text-cinema-400 capitalize">{castMember.role}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       </main>
     </div>
   );
