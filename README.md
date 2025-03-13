@@ -72,7 +72,6 @@ After updating the `.env` files, go to the root folder of the project and run :
 
 ```sh
  npm run dev
- npm run dev
 ```
 
 ## Database Seeding
@@ -85,7 +84,7 @@ npm run db:seed
 This will populate the database with initial data required for the application.
 
 
-## Usage
+## Additional commands usages
 
 ```sh
 # launch parallel all dev app (api and web)
