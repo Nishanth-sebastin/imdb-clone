@@ -107,43 +107,68 @@ npm run @repo/api --command
 
 ```
 
-## Documentation
 
--   React :  [React hooks](https://fr.reactjs.org/docs/hooks-intro.html).
--   Typescript : [TS](https://www.typescriptlang.org/).
--   Yarn : package manager [yarn](https://yarnpkg.com/).
--   Webpack : bundler [webpack](https://webpack.js.org/).
--   Babel : JS compiler ECMAScript 2015+ [babel](https://babeljs.io/docs/en/) (arrow function, and so on).
--   Prettier : [prettier](https://prettier.io/) configuration with VScode
--   ESlint : [ESlint](https://eslint.org/) linter fix auto config VScode
--   dotenv to configure .env
+## Database Schema and Relationships
 
-## Inspiration for next improvement
+### 1. **User Schema**
+- Fields:
+  - `name` (String, required)
+  - `username` (String, unique, required)
+  - `email` (String, unique, required)
+  - `password` (String, required, hashed before saving)
+- Relationships:
+  - A user can submit multiple **Movie Feedback**.
+  - A user can create **Movies**.
 
-- CSS choices (postcss, inline-css, ...)
-- query call function API (fetch, axios)
-- test e2e (cypress, playwright, ...)
-- swc or babel
-- lib front tanstack
-- storybook for component
-- sonar
+### 2. **Movie Schema**
+- Fields:
+  - `_id` (UUID, primary key)
+  - `title` (String, required)
+  - `year` (Number, required, min: 1888)
+  - `description` (String, required)
+  - `images` (Array of Strings, at least one required)
+  - `user_id` (String, references `User`)
+  - `overall_ratings` (Number, default: 0, range: 0-5)
+  - `cast` (Array of objects containing `person` and `role`)
+- Relationships:
+  - A movie can have multiple **Actors** and **Producers**.
+  - A movie can receive multiple **Movie Feedback**.
 
-You can use this minimun configuration to start a clean project, test it and improve it
+### 3. **Actor Schema**
+- Fields:
+  - `_id` (UUID, primary key)
+  - `name` (String, required)
+  - `imageUrl` (String, optional)
+  - `movies` (Array of Strings, references `Movie`)
+- Relationships:
+  - An actor can be associated with multiple **Movies**.
 
+### 4. **Producer Schema**
+- Fields:
+  - `_id` (UUID, primary key)
+  - `name` (String, required)
+  - `imageUrl` (String, optional)
+  - `movies` (Array of Strings, references `Movie`)
+- Relationships:
+  - A producer can be associated with multiple **Movies**.
 
+### 5. **Movie Feedback Schema** *(Under Development)*
+- Fields:
+  - `_id` (UUID, primary key)
+  - `rating` (Number, required, range: 0-5)
+  - `review` (String, required)
+  - `user_id` (String, references `User`)
+  - `movie_id` (String, references `Movie`)
+- Relationships:
+  - A feedback entry belongs to a **User** and a **Movie**.
 
-## Contributor
+### 6. **Refresh Token Schema**
+- Fields:
+  - `userId` (ObjectId, references `User`, required)
+  - `token` (String, required)
+  - `createdAt` (Date, default: now, expires in 7 days)
+- Relationships:
+  - Each refresh token is associated with a **User**.
 
-[Quentin](https://github.com/quentinlao/)
+*Note: The `Movie Feedback` schema is still under development.*
 
-
-### License
-
-
-
-
-1. npm run dev for dev
-2. npm run build for prod
-3. npx turbo db:generate
-4. npx turbo db:migrate
-5. npx prisma db seed
