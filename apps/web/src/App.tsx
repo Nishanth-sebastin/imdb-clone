@@ -11,7 +11,7 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <AuthProvider>
-        <Sonner theme="light" position="top-right" />
+        <Sonner richColors={true} theme="dark" position="top-right" />
         <RouterProvider router={router} />
       </AuthProvider>
     </TooltipProvider>

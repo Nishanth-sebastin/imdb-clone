@@ -15,6 +15,7 @@ import { Film } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useContext, useState } from 'react';
 import { toast } from 'sonner';
+import { loginSchema, registerSchema } from '@/schemas';
 
 export default function Navbar() {
   const { user, login, logout, register } = useAuth();
@@ -32,10 +33,23 @@ export default function Navbar() {
   });
 
   const [isLoading, setIsLoading] = useState(false);
+
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
 
+    const validationResult = loginSchema.safeParse({
+      usernameOrEmail: loginState.usernameOrEmail,
+      password: loginState.password,
+    });
+
+    if (!validationResult.success) {
+      validationResult.error.errors.forEach((err) => {
+        toast.error(err.message);
+      });
+      return;
+    }
+
+    setIsLoading(true);
     login({ usernameOrEmail: loginState.usernameOrEmail, password: loginState.password })
       .then(() => {
         toast.success('Signed in successfully');
@@ -52,6 +66,20 @@ export default function Navbar() {
 
   const handleRegister = (e: React.FormEvent) => {
     e.preventDefault();
+    const validationResult = registerSchema.safeParse({
+      username: signupState.user_name,
+      name: signupState.name,
+      email: signupState.email,
+      password: signupState.password,
+    });
+
+    if (!validationResult.success) {
+      validationResult.error.errors.forEach((err) => {
+        toast.error(err.message);
+      });
+      return;
+    }
+
     setIsLoading(true);
 
     register({

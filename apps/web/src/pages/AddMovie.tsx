@@ -15,6 +15,7 @@ import { useMutationEvents } from '@/helpers/useMutationEvents';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { getMoviesById, saveMovie, updateMovie } from '@/action';
 import { useQueryEvents } from '@/helpers/useQueryEvents';
+import { movieSchema, movieValidationSchema } from '@/schemas';
 
 const AddMovie = () => {
   const { user } = useAuth();
@@ -100,9 +101,16 @@ const AddMovie = () => {
         navigate('/');
         toast.success('Movie updated successfully');
       },
-      onError: () => {
+      onError: (error: any) => {
         setIsSubmitting(false);
-        toast.error('Failed to update movie');
+
+        if (error.response && error.response.data.errors) {
+          error.response.data.errors.forEach((err: { path: string[]; message: string }) => {
+            toast.error(err.message);
+          });
+        } else {
+          toast.error('Failed to update movie. Please try again.');
+        }
       },
     }
   );
@@ -110,26 +118,18 @@ const AddMovie = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!title || !year || !description) {
-      toast.error('Please fill out all required fields');
-      return;
-    }
+    const validationResult = movieValidationSchema.safeParse({
+      title,
+      year,
+      description,
+      images,
+      cast,
+    });
 
-    if (images.length === 0) {
-      toast.error('Please upload at least one image for the movie poster');
-      return;
-    }
-
-    // Ensure at least one cast member (either actor or producer)
-    if (cast.length === 0) {
-      toast.error('Please add at least one cast or crew member');
-      return;
-    }
-
-    // Validate that all cast members have names
-    const invalidCastMembers = cast.filter((member) => !member.name.trim());
-    if (invalidCastMembers.length > 0) {
-      toast.error('All cast and crew members must have names');
+    if (!validationResult.success) {
+      validationResult.error.errors.forEach((err) => {
+        toast.error(err.message);
+      });
       return;
     }
 

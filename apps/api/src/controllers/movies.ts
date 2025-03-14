@@ -7,10 +7,11 @@ import Producer from 'src/models/producer.model';
 import { createActor, getActorById } from 'src/services/actorsService';
 import { createProducer, getProducerById } from 'src/services/producersService';
 import { createMovie, getMovies, getMoviesById, updateMovie } from '../services/movieService';
-import { validateUser } from '../validations/userValidations';
 import Movie from 'src/models/movie.model';
 import { processCastMembers, updateExistingMemberReferences } from 'src/helpers';
 import User from 'src/models/user.model';
+import { validateRequest } from 'src/middlewares/validateRequest';
+import { movieValidationSchema } from 'src/validations/movieValidation';
 
 const router = Router();
 
@@ -95,7 +96,7 @@ router.get('/:id', optionalAuthMiddleware, async (req, res) => {
   }
 });
 
-router.post('/', authMiddleware, async (req, res, next) => {
+router.post('/', authMiddleware, validateRequest(movieValidationSchema), async (req, res, next) => {
   try {
     const { cast, ...movieData } = req.body;
     const userId = req.user.user_id;
