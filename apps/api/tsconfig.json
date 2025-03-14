@@ -1,17 +1,17 @@
 {
   "compilerOptions": {
     "baseUrl": ".",
-    "target": "ES2019", 
-    "module": "CommonJS", 
+    "target": "ES2019",
+    "module": "CommonJS",
     "strict": true,
     "forceConsistentCasingInFileNames": true,
     "esModuleInterop": true,
-    "moduleResolution": "bundler",
+    "moduleResolution": "node16",
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "noEmit": true, 
+    "noEmit": true,
     "skipLibCheck": true,
-    "types": ["node"], 
+    "types": ["node"],
     "jsx": "preserve"
   },
   "include": ["./src"]

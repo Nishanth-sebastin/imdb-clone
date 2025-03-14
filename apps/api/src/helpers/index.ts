@@ -2,8 +2,8 @@ import Actor from 'src/models/actors.model';
 import Producer from 'src/models/producer.model';
 
 export const processCastMembers = async (cast: any) => {
-  const processedCast = [];
-  const newMemberIds = new Set();
+  const processedCast: { id: string; role: string }[] = [];
+  const newMemberIds = new Set<string>();
 
   for (const member of cast) {
     if (member.id) {
@@ -11,23 +11,21 @@ export const processCastMembers = async (cast: any) => {
       continue;
     }
 
-    let newMember = [];
-    if (!member.id) {
-      const Model = member.role === 'actor' ? Actor : Producer;
-      newMember = await Model.create({
-        name: member.name,
-        imageUrl: member.imageUrl,
-        movies: [],
-      });
-      processedCast.push({ id: newMember._id, role: member.role });
-    }
+    const Model = member.role === 'actor' ? Actor : Producer;
+    const newMember = await Model.create({
+      name: member.name,
+      imageUrl: member.imageUrl,
+      movies: [],
+    });
+
+    processedCast.push({ id: newMember._id, role: member.role });
     newMemberIds.add(newMember._id);
   }
 
-  return { processedCast, newMemberIds };
+  return { processedCast, newMemberIds: Array.from(newMemberIds) };
 };
 
-export const updateExistingMemberReferences = async (processedCast: any[], newMemberIds: any[], movieId: string) => {
+export const updateExistingMemberReferences = async (processedCast: any[], movieId: string) => {
   await Promise.all(
     processedCast.map(({ id, role }) => {
       const Model = role === 'actor' ? Actor : Producer;

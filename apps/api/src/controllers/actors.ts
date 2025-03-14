@@ -1,12 +1,11 @@
 import { Router } from 'express';
-import { getActors, createActor, getActorById } from '../services/actorsService';
-import { validateUser } from '../validations/userValidations';
+import { getActors, getActorById } from '../services/actorsService';
 
 const router = Router();
 
 router.get('/', async (req, res, next) => {
   try {
-    const searchText = req.query.search || '';
+    const searchText = (req.query.search as string) || '';
     const actors = await getActors(searchText);
     const formattedActors = actors.map((actor) => ({
       id: actor._id,

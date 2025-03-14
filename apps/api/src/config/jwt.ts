@@ -18,6 +18,6 @@ export function verifyAccessToken(token: string) {
   return jwt.verify(token, ACCESS_SECRET);
 }
 
-export function verifyRefreshToken(token: string) {
+export function verifyRefreshToken(token: string): any {
   return jwt.verify(token, REFRESH_SECRET);
 }
