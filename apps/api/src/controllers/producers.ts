@@ -6,7 +6,7 @@ router.get('/', async (req, res, next) => {
   try {
     const searchText = (req.query.search as string) || '';
     const producers = await getProducers(searchText);
-    const formattedProducers = producers.map((producer) => ({
+    const formattedProducers = producers.map((producer: any) => ({
       id: producer.id,
       name: producer.name,
     }));

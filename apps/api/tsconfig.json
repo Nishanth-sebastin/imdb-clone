@@ -2,17 +2,19 @@
   "compilerOptions": {
     "baseUrl": ".",
     "target": "ES2019",
-    "module": "ESNext",
+    "module": "CommonJS", // Changed from ESNext
     "strict": true,
     "forceConsistentCasingInFileNames": true,
     "esModuleInterop": true,
-    "moduleResolution": "bundler",
+    "moduleResolution": "node", // Changed from bundler
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
     "skipLibCheck": true,
     "types": ["node"],
-    "jsx": "preserve"
+    "allowSyntheticDefaultImports": true, // Added this
+    "outDir": "./dist" // Added output directory
   },
-  "include": ["./src"]
+  "include": ["./src"],
+  "exclude": ["node_modules"]
 }

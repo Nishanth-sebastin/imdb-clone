@@ -26,8 +26,8 @@ router.get('/', optionalAuthMiddleware, async (req: AuthenticatedRequest, res, n
 
     const userMovies = userId
       ? movies
-          .filter((movie) => movie.user_id == userId)
-          .map((movie) => ({
+          .filter((movie: any) => movie.user_id == userId)
+          .map((movie: any) => ({
             id: movie._id,
             title: movie.title,
             year: movie.year,
@@ -37,8 +37,8 @@ router.get('/', optionalAuthMiddleware, async (req: AuthenticatedRequest, res, n
       : [];
 
     const communityMovies = movies
-      .filter((movie) => !userId || movie.user_id !== userId)
-      .map((movie) => ({
+      .filter((movie: any) => !userId || movie.user_id !== userId)
+      .map((movie: any) => ({
         id: movie._id,
         title: movie.title,
         year: movie.year,
@@ -62,7 +62,7 @@ router.get('/:id', optionalAuthMiddleware, async (req: AuthenticatedRequest, res
     }
 
     const castDetails = await Promise.all(
-      movie.cast.map(async (castMember) => {
+      movie.cast.map(async (castMember: any) => {
         let personDetails = null;
 
         if (castMember.role === 'actor') {

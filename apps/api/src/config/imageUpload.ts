@@ -18,7 +18,7 @@ router.post('/', upload.single('file'), async (req, res) => {
 
     const uploadStream = (): Promise<UploadApiResponse> =>
       new Promise((resolve, reject) => {
-        const stream = cloudinary.uploader.upload_stream({ folder: 'movie-posters' }, (error, result) => {
+        const stream = cloudinary.uploader.upload_stream({ folder: 'movie-posters' }, (error: any, result: any) => {
           if (result) resolve(result as UploadApiResponse);
           else reject(error);
         });

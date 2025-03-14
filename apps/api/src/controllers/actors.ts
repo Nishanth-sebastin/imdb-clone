@@ -7,7 +7,7 @@ router.get('/', async (req, res, next) => {
   try {
     const searchText = (req.query.search as string) || '';
     const actors = await getActors(searchText);
-    const formattedActors = actors.map((actor) => ({
+    const formattedActors = actors.map((actor: any) => ({
       id: actor._id,
       name: actor.name,
     }));
