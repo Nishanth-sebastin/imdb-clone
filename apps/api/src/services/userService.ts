@@ -8,6 +8,9 @@ import Actor from '../models/actors.model';
 export async function getUser(userData: any) {
   try {
     const user = await User.findById(userData.user_id);
+    if (!user) {
+      throw new Error('User not found');
+    }
     return { name: user.name, email: user.email };
   } catch (error) {
     console.error('❌ Error fetching user:', error);

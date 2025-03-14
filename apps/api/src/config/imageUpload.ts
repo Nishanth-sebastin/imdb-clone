@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import multer from 'multer';
-import { v2 as cloudinary } from 'cloudinary';
+import { UploadApiResponse, v2 as cloudinary } from 'cloudinary';
 import streamifier from 'streamifier';
 
 const router = Router();
@@ -16,20 +16,16 @@ router.post('/', upload.single('file'), async (req, res) => {
   try {
     if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
 
-    // Convert Buffer to Stream and upload to Cloudinary
-    const uploadStream = () =>
+    const uploadStream = (): Promise<UploadApiResponse> =>
       new Promise((resolve, reject) => {
-        const stream = cloudinary.uploader.upload_stream(
-          { folder: 'movie-posters' }, // Folder in Cloudinary
-          (error, result) => {
-            if (result) resolve(result);
-            else reject(error);
-          }
-        );
-        streamifier.createReadStream(req.file.buffer).pipe(stream);
+        const stream = cloudinary.uploader.upload_stream({ folder: 'movie-posters' }, (error, result) => {
+          if (result) resolve(result as UploadApiResponse);
+          else reject(error);
+        });
+        streamifier.createReadStream(req.file!.buffer).pipe(stream);
       });
 
-    const result = await uploadStream();
+    const result: UploadApiResponse = await uploadStream();
 
     res.json({ success: true, fileUrl: result.secure_url });
   } catch (error) {

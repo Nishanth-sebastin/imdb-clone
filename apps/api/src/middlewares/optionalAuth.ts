@@ -29,18 +29,23 @@ const optionalAuthMiddleware = async (req: AuthRequest, res: Response, next: Nex
     next();
   } catch (error) {
     // Handle specific JWT errors
-    if (error.name === 'TokenExpiredError') {
-      return res.status(403).json({
-        message: 'Token expired',
-        code: 'TOKEN_EXPIRED',
-      });
-    }
+    if (error instanceof Error) {
+      if (error.name === 'TokenExpiredError') {
+        return res.status(403).json({
+          message: 'Token expired',
+          code: 'TOKEN_EXPIRED',
+        });
+      }
 
-    if (error.name === 'JsonWebTokenError') {
-      return res.status(403).json({
-        message: 'Invalid token',
-        code: 'INVALID_TOKEN',
-      });
+      if (error.name === 'JsonWebTokenError') {
+        return res.status(403).json({
+          message: 'Invalid token',
+          code: 'INVALID_TOKEN',
+        });
+      }
+
+      // Handle other errors
+      return res.status(500).json({ message: error.message });
     }
 
     // Other errors

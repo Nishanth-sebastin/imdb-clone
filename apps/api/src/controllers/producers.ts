@@ -4,10 +4,10 @@ const router = Router();
 
 router.get('/', async (req, res, next) => {
   try {
-    const searchText = req.query.search || '';
+    const searchText = (req.query.search as string) || '';
     const producers = await getProducers(searchText);
     const formattedProducers = producers.map((producer) => ({
-      id: producer._id,
+      id: producer.id,
       name: producer.name,
     }));
     res.json({ data: formattedProducers });
@@ -23,7 +23,7 @@ router.get('/:id', async (req, res, next) => {
       return res.status(404).json({ error: 'Producer not found' });
     }
     const formattedProducer = {
-      id: producer._id,
+      id: producer.id,
       name: producer.name,
       imageUrl: producer.imageUrl ?? null,
     };

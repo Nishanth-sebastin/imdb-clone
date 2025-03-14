@@ -35,7 +35,7 @@ export async function createMovie(movieData: any, userId: string) {
     const movie = new Movie({
       ...movieData,
       user_id: userId,
-      cast: movieData.cast.map((ref) => ({
+      cast: movieData.cast.map((ref: any) => ({
         person: ref.id,
         role: ref.role.toLowerCase(),
       })),
@@ -60,7 +60,7 @@ export async function updateMovie(movieId: string, movieData: any, userId: strin
         description: movieData.description,
         images: movieData.images,
         year: movieData.year,
-        cast: movieData.cast.map((ref) => ({
+        cast: movieData.cast.map((ref: any) => ({
           person: ref.id,
           role: ref.role.toLowerCase(),
         })),
