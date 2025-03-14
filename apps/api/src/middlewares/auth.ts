@@ -1,5 +1,4 @@
 import { Request, Response, NextFunction } from 'express';
-import jwt from 'jsonwebtoken';
 import { verifyAccessToken } from '../config/jwt';
 import User from '../models/user.model';
 

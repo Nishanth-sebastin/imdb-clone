@@ -17,7 +17,7 @@ const optionalAuthMiddleware = async (req: AuthRequest, res: Response, next: Nex
     const decoded: any = verifyAccessToken(token);
 
     // Check user exists
-    const user = await User.findById(decoded.userId);
+    const user: any = await User.findById(decoded.userId);
     if (!user) return res.status(403).json({ message: 'User not found' });
     // Attach valid user
     req.user = {

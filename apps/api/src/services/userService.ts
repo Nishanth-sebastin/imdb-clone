@@ -1,5 +1,4 @@
 import User from '../models/user.model';
-import Actor from '../models/actors.model';
 
 /**
  * Fetch single user from the database

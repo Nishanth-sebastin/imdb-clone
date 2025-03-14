@@ -2,7 +2,7 @@ import axios from 'axios';
 import { AxiosInstance } from 'axios';
 
 const useAxios = (): AxiosInstance => {
-  const baseURL = process.env.BACKEND_URL || 'https://imdb-clone-web-iip1.vercel.app/';
+  const baseURL = process.env.BACKEND_URL || 'https://imdb-clone-web-mgbk.vercel.app/';
   const axiosInstance = axios.create({
     baseURL,
     headers: {
