@@ -2,7 +2,7 @@ import axios from 'axios';
 import { AxiosInstance } from 'axios';
 
 const useAxios = (): AxiosInstance => {
-  const baseURL = 'http://localhost:8085';
+  const baseURL = process.env.BACKEND_URL;
   const axiosInstance = axios.create({
     baseURL,
     headers: {
