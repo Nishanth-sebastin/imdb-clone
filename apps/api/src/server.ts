@@ -13,7 +13,6 @@ dotenv.config();
 
 const app = express();
 
-// Configure CORS
 const CLIENT_URLS = [process.env.VITE_WEB_URL, 'http://localhost:8080'].filter(Boolean) as string[];
 
 app.use(

@@ -4,8 +4,8 @@
   "license": "ISC",
   "scripts": {
     "dev": "tsx watch src/server.ts",
-    "build": "esbuild src/server.ts --bundle --platform=node --outfile=dist/server.js --external:express --external:cors",
-    "start": "node dist/server.js",
+    "build": "tsc --project tsconfig.json",
+    "start": "NODE_ENV=production node --no-warnings=ExperimentalWarning ./dist/server.js",
     "db:seed": "npx tsx src/seeders/seeder.ts",
     "type-check": "tsc",
     "lint": "eslint \"**/*.ts*\""
