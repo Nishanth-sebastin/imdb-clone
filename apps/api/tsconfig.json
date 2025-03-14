@@ -12,6 +12,8 @@
     "noEmit": true,
     "skipLibCheck": true,
     "types": ["node"],
+    "useUnknownInCatchVariables": false,
+    "typeRoots": ["./node_modules/@types", "./src/types"],
     "allowSyntheticDefaultImports": true, // Added this
     "outDir": "./dist" // Added output directory
   },

@@ -5,19 +5,19 @@ export const validateRequest = (schema: ZodSchema) => async (req: Request, res: 
   try {
     await schema.parseAsync(req.body);
     next();
-  } catch (error: unknown) {
+  } catch (error) {
     if (error instanceof ZodError) {
       return res.status(400).json({
-        errors: error.errors.map((err: any) => ({
-          path: err.path,
+        errors: error.errors.map((err) => ({
+          path: err.path.join('.'),
           message: err.message,
         })),
       });
     }
 
-    // Handle unexpected errors
-    const errorMessage = error instanceof Error ? error.message : 'Validation failed due to an unexpected error';
+    // Handle non-Zod errors
+    const message = error instanceof Error ? error.message : 'Validation failed';
 
-    res.status(500).json({ message: errorMessage });
+    res.status(500).json({ message });
   }
 };

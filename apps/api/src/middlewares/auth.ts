@@ -16,7 +16,7 @@ const authMiddleware = async (req: AuthRequest, res: Response, next: NextFunctio
     }
 
     const decoded: any = verifyAccessToken(token);
-    const user = await User.findById(decoded.userId);
+    const user = await User.findById<any>(decoded.userId);
 
     if (!user) {
       return res.status(401).json({ message: 'Unauthorized: User not found' });
