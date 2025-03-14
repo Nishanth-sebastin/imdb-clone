@@ -2,11 +2,11 @@
   "compilerOptions": {
     "baseUrl": ".",
     "target": "ES2019",
-    "module": "CommonJS",
+    "module": "CommonJS", // Changed from ESNext
     "strict": true,
     "forceConsistentCasingInFileNames": true,
     "esModuleInterop": true,
-    "moduleResolution": "node",
+    "moduleResolution": "node", // Changed from bundler
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
@@ -14,8 +14,8 @@
     "types": ["node"],
     "useUnknownInCatchVariables": false,
     "typeRoots": ["./node_modules/@types", "./src/types"],
-    "allowSyntheticDefaultImports": true,
-    "outDir": "./dist"
+    "allowSyntheticDefaultImports": true, // Added this
+    "outDir": "./dist" // Added output directory
   },
   "include": ["./src"],
   "exclude": ["node_modules"]
