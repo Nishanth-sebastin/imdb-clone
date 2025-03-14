@@ -2,7 +2,7 @@
   "compilerOptions": {
     "baseUrl": ".",
     "target": "ES2019",
-    "module": "CommonJS", // Changed from ESNext
+    "module": "ESNext", // Changed from ESNext
     "strict": true,
     "forceConsistentCasingInFileNames": true,
     "esModuleInterop": true,
