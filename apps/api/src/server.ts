@@ -3,7 +3,7 @@ import express from 'express';
 import { VercelRequest, VercelResponse } from '@vercel/node';
 import dotenv from 'dotenv';
 import { errorHandler } from './middlewares/errorHandler.js';
-import routes from './routes';
+import routes from './routes.js';
 import authRoutes from './auth.routes';
 import imageUploadRoutes from './config/imageUpload';
 import connectDB from './config/db';
