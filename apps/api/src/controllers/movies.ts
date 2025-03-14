@@ -1,18 +1,15 @@
 import { Router, Request } from 'express';
-import { mock } from 'node:test';
-import optionalAuthMiddleware from 'src/middlewares/optionalAuth';
-import authMiddleware from 'src/middlewares/auth';
-import Actor from 'src/models/actors.model';
-import Producer from 'src/models/producer.model';
-import { createActor, getActorById } from 'src/services/actorsService';
-import { createProducer, getProducerById } from 'src/services/producersService';
+import optionalAuthMiddleware from '../middlewares/optionalAuth';
+import authMiddleware from '../middlewares/auth';
+import Actor from '../models/actors.model';
+import Producer from '../models/producer.model';
+import { createActor, getActorById } from '../services/actorsService';
+import { createProducer, getProducerById } from '../services/producersService';
 import { createMovie, getMovies, getMoviesById, updateMovie } from '../services/movieService';
-import Movie from 'src/models/movie.model';
-import { processCastMembers, updateExistingMemberReferences } from 'src/helpers';
-import User from 'src/models/user.model';
-import { validateRequest } from 'src/middlewares/validateRequest';
-import { movieValidationSchema } from 'src/validations/movieValidation';
-import { MovieType } from 'src/types';
+import { processCastMembers, updateExistingMemberReferences } from '../helpers';
+import { validateRequest } from '../middlewares/validateRequest';
+import { movieValidationSchema } from '../validations/movieValidation';
+import { MovieType } from '../types';
 const router = Router();
 
 interface AuthenticatedRequest extends Request {
@@ -63,7 +60,7 @@ router.get('/:id', optionalAuthMiddleware, async (req: AuthenticatedRequest, res
 
     const castDetails = await Promise.all(
       movie.cast.map(async (castMember: any) => {
-        let personDetails = null;
+        let personDetails: any = null;
 
         if (castMember.role === 'actor') {
           personDetails = await getActorById(castMember.person);

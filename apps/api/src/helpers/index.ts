@@ -1,5 +1,5 @@
-import Actor from 'src/models/actors.model';
-import Producer from 'src/models/producer.model';
+import Actor from '../models/actors.model';
+import Producer from '../models/producer.model';
 
 export const processCastMembers = async (cast: any) => {
   const processedCast: { id: string; role: string }[] = [];

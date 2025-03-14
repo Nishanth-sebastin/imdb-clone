@@ -1,5 +1,5 @@
 import { Router, Request, Response, NextFunction } from 'express';
-import { getUser } from 'src/services/userService';
+import { getUser } from '../services/userService';
 
 interface AuthenticatedRequest extends Request {
   user?: any;
