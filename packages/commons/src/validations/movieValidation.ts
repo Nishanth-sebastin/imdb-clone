@@ -4,7 +4,7 @@ export const movieValidationSchema = z.object({
   title: z.string(),
   year: z.preprocess((val) => Number(val), z.number()),
   description: z.string(),
-  images: z.array(z.string().url()).min(1, 'At least one image is required'),
+  images: z.array(z.string().url()),
   cast: z
     .array(
       z.object({

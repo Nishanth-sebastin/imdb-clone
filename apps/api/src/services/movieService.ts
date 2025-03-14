@@ -57,8 +57,9 @@ export async function updateMovie(movieId: string, movieData: any, userId: strin
       { _id: movieId, user_id: userId }, // Find movie by ID and ensure the user owns it
       {
         title: movieData.title,
+        description: movieData.description,
+        images: movieData.images,
         year: movieData.year,
-        producer_id: movieData.producerId,
         cast: movieData.cast.map((ref) => ({
           person: ref.id,
           role: ref.role.toLowerCase(),

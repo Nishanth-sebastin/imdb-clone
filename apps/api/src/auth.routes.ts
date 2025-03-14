@@ -3,10 +3,11 @@ import User from './models/user.model';
 import RefreshToken from './models/refreshtoken.model';
 import bcrypt from 'bcryptjs';
 import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from './config/jwt';
-
+import { validateRequest } from './middlewares/validateRequest';
+import { registerSchema, loginSchema } from './validations/userValidation';
 const router = express.Router();
 
-router.post('/register', async (req, res) => {
+router.post('/register', validateRequest(registerSchema), async (req, res) => {
   const { name, username, email, password } = req.body;
   const userExists = await User.findOne({ $or: [{ email }, { username }] });
 
@@ -16,7 +17,7 @@ router.post('/register', async (req, res) => {
   res.status(201).json({ message: 'User registered successfully' });
 });
 
-router.post('/login', async (req, res) => {
+router.post('/login', validateRequest(loginSchema), async (req, res) => {
   const { username, email, password } = req.body;
   const user = await User.findOne({ $or: [{ email }, { username }] });
 
@@ -25,11 +26,11 @@ router.post('/login', async (req, res) => {
   }
 
   // Generate tokens
-  const accessToken = generateAccessToken(user._id.toString());
-  const refreshToken = generateRefreshToken(user._id.toString());
+  const accessToken = generateAccessToken(user.id.toString());
+  const refreshToken = generateRefreshToken(user.id.toString());
 
   // Store refresh token in DB
-  await RefreshToken.create({ userId: user._id, token: refreshToken });
+  await RefreshToken.create({ userId: user.id, token: refreshToken });
 
   // Store refreshToken securely in an HTTP-only cookie
   res.cookie('refreshToken', refreshToken, {
@@ -54,7 +55,7 @@ router.post('/refresh', async (req, res) => {
     const user = await User.findById(decoded.userId);
     if (!user) return res.status(401).json({ message: 'User not found' });
 
-    const newAccessToken = generateAccessToken(user._id.toString());
+    const newAccessToken = generateAccessToken(user.id.toString());
     res.json({ accessToken: newAccessToken });
   } catch {
     res.status(403).json({ message: 'Invalid refresh token' });
