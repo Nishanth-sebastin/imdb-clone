@@ -1,14 +1,12 @@
 {
   "compilerOptions": {
     "baseUrl": ".",
-    // "target": "ES2019",
-    "target": "ES6",
-    "module": "NodeNext", // or ESNext
-    "moduleResolution": "nodenext",
+    "target": "ES2019",
+    "module": "CommonJS", // Changed from ESNext
     "strict": true,
     "forceConsistentCasingInFileNames": true,
     "esModuleInterop": true,
-    // "moduleResolution": "node", // Changed from bundler
+    "moduleResolution": "node", // Changed from bundler
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
