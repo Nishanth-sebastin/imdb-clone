@@ -1,6 +1,7 @@
 // https://www.typescriptlang.org/docs/handbook/compiler-options.html
 {
   "compilerOptions": {
+    "baseUrl": "src/",
     /* Basic Options */
     // ES5 чтобы как babel
     "target": "ES5" /* Specify ECMAScript target version: 'ES3' (default), 'ES5', 'ES2015', 'ES2016', 'ES2017','ES2018' or 'ESNEXT'. */,
@@ -35,7 +36,7 @@
     "moduleResolution": "node" /* Specify module resolution strategy: 'node' (Node.js) or 'classic' (TypeScript pre-1.6). */,
     "resolveJsonModule": true /* Often in Node.js applications a .json is needed. Allows for importing, extracting types from and generating .json files.
     "esModuleInterop": true,                  /* Enables emit interoperability between CommonJS and ES Modules via creation of namespace objects for all imports. Implies 'allowSyntheticDefaultImports'. */,
-    "baseUrl": "./src" /* Base directory to resolve non-absolute module names. */,
+    // "baseUrl": "./src" /* Base directory to resolve non-absolute module names. */,
     "paths": {
       /* A series of entries which re-map imports to lookup locations relative to the 'baseUrl'. */ "~/*": ["./*"]
     },
