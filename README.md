@@ -83,6 +83,8 @@ npm run db:seed
 
 This will populate the database with initial data required for the application.
 
+example username : admin
+example username : password
 
 ## Additional commands usages
 
