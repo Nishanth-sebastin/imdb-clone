@@ -15,7 +15,7 @@ import { useMutationEvents } from '@/helpers/useMutationEvents';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { getMoviesById, saveMovie, updateMovie } from '@/action';
 import { useQueryEvents } from '@/helpers/useQueryEvents';
-import { movieSchema, movieValidationSchema } from '@/schemas';
+import { movieValidationSchema } from '@/schemas';
 
 const AddMovie = () => {
   const { user } = useAuth();
@@ -34,25 +34,24 @@ const AddMovie = () => {
     return null;
   }
 
-  const { isLoading } = useQueryEvents(
-    useQuery({
-      queryKey: ['get_single_movie', id],
-      queryFn: async () => await getMoviesById(id),
-      enabled: !!id,
-    }),
-    {
-      onSuccess: (data) => {
-        setTitle(data.title);
-        setYear(data.year);
-        setDescription(data.description);
-        setImages(data.images);
-        setCast(data.cast);
-      },
-      onError: (error) => {
-        console.error(error);
-      },
-    }
-  );
+  const queryResult = useQuery({
+    queryKey: ['get_single_movie', id],
+    queryFn: async () => await getMoviesById(id),
+    enabled: !!id,
+  });
+
+  const { isLoading } = useQueryEvents(queryResult, {
+    onSuccess: (data) => {
+      setTitle(data.title);
+      setYear(data.year);
+      setDescription(data.description);
+      setImages(data.images);
+      setCast(data.cast);
+    },
+    onError: (error) => {
+      console.error(error);
+    },
+  });
 
   const { mutate: saveMovieMutate } = useMutationEvents(
     useMutation({
