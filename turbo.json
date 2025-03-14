@@ -24,7 +24,6 @@
       "outputs": []
     },
     "build": {
-      "dependsOn": ["type-check"],
       "outputs": ["dist/**", "src/**/*.ts"]
     }
   }
