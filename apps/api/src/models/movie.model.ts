@@ -25,7 +25,7 @@ const movieSchema = new mongoose.Schema({
       type: String,
       required: true,
       validate: {
-        validator: (array: string[]) => Array.isArray(array) && array.length > 0,
+        validator: (array: any) => array.length > 0,
         message: 'At least one image is required',
       },
     },

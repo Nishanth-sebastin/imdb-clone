@@ -2,11 +2,11 @@
   "compilerOptions": {
     "baseUrl": ".",
     "target": "ES2019",
-    "module": "CommonJS",
+    "module": "ESNext",
     "strict": true,
     "forceConsistentCasingInFileNames": true,
     "esModuleInterop": true,
-    "moduleResolution": "node16",
+    "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
