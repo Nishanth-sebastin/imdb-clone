@@ -16,7 +16,14 @@ const app = express();
 const PORT = process.env.API_PORT || 8085;
 const CLIENT_URL = process.env.WEB_PORT || 'http://localhost:8080';
 
-app.use(cors({ origin: CLIENT_URL }));
+app.use(
+  cors({
+    origin: CLIENT_URL,
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  })
+);
+
 app.use(express.json());
 app.use(cookieParser());
 

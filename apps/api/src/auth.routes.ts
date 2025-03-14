@@ -33,17 +33,19 @@ router.post('/login', validateRequest(loginSchema), async (req, res) => {
   await RefreshToken.create({ userId: user.id, token: refreshToken });
 
   // Store refreshToken securely in an HTTP-only cookie
-  res.cookie('refreshToken', refreshToken, {
-    httpOnly: true,
-    secure: true,
-    sameSite: 'strict',
-  });
+  // res.cookie('refreshToken', refreshToken, {
+  //   httpOnly: true,
+  //   secure: false, // false in development
+  //   sameSite: 'lax',
+  //   maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+  // });
 
-  res.json({ accessToken });
+  res.json({ accessToken, refreshToken });
 });
 
 router.post('/refresh', async (req, res) => {
-  const { refreshToken } = req.cookies;
+  const { refreshToken } = req.body;
+  console.log(req.cookies);
   if (!refreshToken) return res.status(401).json({ message: 'No refresh token' });
 
   // Check if the token exists in the DB before proceeding
