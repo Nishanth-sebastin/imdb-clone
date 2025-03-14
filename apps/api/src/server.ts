@@ -13,7 +13,7 @@ dotenv.config();
 
 const app = express();
 
-// Configure CORS for Vercel deployment
+// Configure CORS
 const CLIENT_URLS = [process.env.VITE_WEB_URL, 'http://localhost:8080'].filter(Boolean) as string[];
 
 app.use(
@@ -36,15 +36,22 @@ app.use(errorHandler);
 connectDB();
 
 // Vercel serverless function handler
-module.exports = (req: VercelRequest, res: VercelResponse) => {
+const handler = (req: VercelRequest, res: VercelResponse) => {
   req.url = `/api${req.url}`;
   return app(req, res);
 };
 
-// Local server (optional for development)
-if (process.env.NODE_ENV !== 'production') {
-  const PORT = process.env.PORT || 8085;
-  app.listen(PORT, () => {
-    console.info(`🚀 Local server running on port ${PORT}`);
-  });
-}
+// Local server
+const startServer = () => {
+  if (process.env.NODE_ENV !== 'production') {
+    const PORT = process.env.PORT || 8085;
+    app.listen(PORT, () => {
+      console.info(`🚀 Local server running on port ${PORT}`);
+    });
+  }
+};
+
+startServer();
+
+// Export for Vercel
+export default handler;
