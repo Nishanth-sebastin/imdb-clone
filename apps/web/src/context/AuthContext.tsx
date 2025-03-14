@@ -44,6 +44,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     const { data }: any = await axiosClient.post('/auth/login', payload);
     localStorage.setItem('accessToken', data.accessToken);
+    localStorage.setItem('refreshToken', data.refreshToken);
 
     const userData: any = await axiosClient.get('/api/me').then((res) => res.data);
     setUser(userData);

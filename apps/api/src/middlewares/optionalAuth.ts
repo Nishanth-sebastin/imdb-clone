@@ -7,22 +7,46 @@ interface AuthRequest extends Request {
 }
 
 const optionalAuthMiddleware = async (req: AuthRequest, res: Response, next: NextFunction) => {
+  const token = req.header('Authorization')?.split(' ')[1];
+
+  // No token - proceed without authentication
+  if (!token) return next();
+
   try {
-    const token = req.header('Authorization')?.split(' ')[1]; // Extract token from "Bearer <token>"
+    // Verify token (throws error if invalid/expired)
+    const decoded: any = verifyAccessToken(token);
 
-    if (token) {
-      const decoded: any = verifyAccessToken(token);
-      const user = await User.findById(decoded.userId);
+    // Check user exists
+    const user = await User.findById(decoded.userId);
+    if (!user) return res.status(403).json({ message: 'User not found' });
+    // Attach valid user
+    req.user = {
+      user_id: user._id.toString(),
+      name: user.name,
+      email: user.email,
+    };
 
-      if (user) {
-        req.user = { user_id: user._id.toString(), name: user.name, email: user.email }; // Attach user to request
-      }
-    }
+    next();
   } catch (error) {
-    console.error('❌ Authentication error:', error);
-  }
+    // Handle specific JWT errors
+    if (error.name === 'TokenExpiredError') {
+      return res.status(403).json({
+        message: 'Token expired',
+        code: 'TOKEN_EXPIRED',
+      });
+    }
 
-  next();
+    if (error.name === 'JsonWebTokenError') {
+      return res.status(403).json({
+        message: 'Invalid token',
+        code: 'INVALID_TOKEN',
+      });
+    }
+
+    // Other errors
+    console.error('❌ Authentication error:', error);
+    return res.status(403).json({ message: 'Authentication failed' });
+  }
 };
 
 export default optionalAuthMiddleware;

@@ -25,7 +25,9 @@ const useAxios = (): AxiosInstance => {
     async (error: any) => {
       if (error.response?.status === 403) {
         try {
-          const { data }: any = await axios.post(`${baseURL}/auth/refresh`);
+          const { data }: any = await axios.post(`${baseURL}/auth/refresh`, {
+            refreshToken: localStorage.getItem('refreshToken'),
+          });
           localStorage.setItem('accessToken', data.accessToken);
           error.config.headers.Authorization = `Bearer ${data.accessToken}`;
           return axios.request(error.config);
