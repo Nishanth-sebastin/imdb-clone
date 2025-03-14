@@ -1,0 +1,8 @@
+{
+  "build": {
+    "env": {
+      "BACKEND_URL": "https://your-api-domain.vercel.app"
+    }
+  },
+  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
+}
