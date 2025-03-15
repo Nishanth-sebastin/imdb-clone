@@ -10,7 +10,7 @@ import MovieFeedback from '../models/movieFeedback.model';
 
 dotenv.config();
 const seedDatabase = async () => {
-  await mongoose.connect(process.env.DATABASE_URL as string, {
+  await mongoose.connect(process.env.MONGODB_URI as string, {
     serverSelectionTimeoutMS: 30000, // Increase timeout to 30s
   });
 
