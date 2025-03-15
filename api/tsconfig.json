@@ -1,19 +1,9 @@
 {
   "compilerOptions": {
-    "baseUrl": ".",
-    "target": "ES2019",
-    "module": "CommonJS",
-    "strict": true,
-    "forceConsistentCasingInFileNames": true,
     "esModuleInterop": true,
+    "module": "CommonJS",
     "moduleResolution": "node",
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "outDir": "./dist",
-    "noEmit": false,
-    "skipLibCheck": true,
-    // "types": ["node"],
-    "jsx": "preserve"
-  },
-  "include": ["./src"]
+    "outDir": "dist",
+    "strict": true
+  }
 }
