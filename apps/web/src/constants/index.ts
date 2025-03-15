@@ -1,2 +1,0 @@
-export const FETCH_ACTORS = 'FETCH_ACTORS';
-export const FETCH_PRODUCERS = 'FETCH_PRODUCERS';

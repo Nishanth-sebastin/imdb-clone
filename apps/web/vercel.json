@@ -1,8 +1,0 @@
-{
-  "build": {
-    "env": {
-      "BACKEND_URL": "https://imdb-clone-web-iip1.vercel.app/"
-    }
-  },
-  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
-}

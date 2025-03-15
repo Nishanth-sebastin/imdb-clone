@@ -1,12 +1,9 @@
-# gitignore react
-node_modules/
-*~
-build/
-dist/
-.module-cache
-.vscode
-*.env
-
-# turborepo
-.turbo
 .qodo
+api/node_modules
+web/node_modules
+api/dist
+web/dist
+api/.env
+api/.env.local
+web/.env
+web/.env.local
