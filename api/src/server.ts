@@ -24,6 +24,7 @@ app.use(
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
   })
 );
+console.log(process.env.VITE_WEB_URL)
 app.use(express.json());
 app.use(cookieParser());
 
