@@ -5,13 +5,15 @@
   "main": "dist/server.js",
   "scripts": {
     "dev": "tsx watch src/server.ts",
-    "build": "tsc --project tsconfig.json",
+    "build": "tsc --project tsconfig.json --skipLibCheck",
     "start": "node ./dist/server.js",
     "db:seed": "npx tsx src/seeders/seeder.ts",
     "type-check": "tsc",
     "lint": "eslint \"**/*.ts*\""
   },
   "dependencies": {
+    "@types/express": "^4.17.21",
+    "@types/node": "^22.13.10",
     "@repo/commons": "*",
     "@repo/db": "*",
     "bcrypt": "^5.1.1",
