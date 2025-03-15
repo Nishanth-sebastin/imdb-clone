@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "dev": "tsx watch src/server.ts",
-    "build": "tsc src/server.ts --bundle --platform=node --outfile=dist/index.js --external:express --external:cors",
+    "build": "npx esbuild src/server.ts --bundle --platform=node --outfile=dist/index.js --external:express --external:cors",
     "start": "node dist/index.js",
     "db:seed": "npx tsx src/seeders/seeder.ts",
     "type-check": "tsc",
