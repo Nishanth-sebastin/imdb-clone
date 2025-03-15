@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response, Router } from 'express';
-import { getProducerById, getProducers } from '../services/producersService';
+import { getProducerById, getProducers } from '../services/producersService.js';
 const router = Router();
 
 router.get('/', async (req: Request, res: Response, next: NextFunction) => {

@@ -1,4 +1,4 @@
-import Actor from '../models/actors.model';
+import Actor from '../models/actors.model.js';
 
 /**
  * Fetch all actors from the database

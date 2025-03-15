@@ -2,17 +2,16 @@
   "compilerOptions": {
     "baseUrl": ".",
     "target": "ES2019",
-    "module": "CommonJS",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
     "strict": true,
     "forceConsistentCasingInFileNames": true,
     "esModuleInterop": true,
-    "moduleResolution": "node",
     "resolveJsonModule": true,
     "isolatedModules": true,
     "outDir": "./dist",
     "noEmit": false,
     "skipLibCheck": true,
-    // "types": ["node"],
     "jsx": "preserve"
   },
   "include": ["./src"]

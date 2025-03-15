@@ -2,11 +2,11 @@ import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 import { v4 as uuidv4 } from 'uuid';
 import dotenv from 'dotenv';
-import Actor from '../models/actors.model';
-import Movie from '../models/movie.model';
-import Producer from '../models/producer.model';
-import User from '../models/user.model';
-import MovieFeedback from '../models/movieFeedback.model';
+import Actor from '../models/actors.model.js';
+import Movie from '../models/movie.model.js';
+import Producer from '../models/producer.model.js';
+import User from '../models/user.model.js';
+import MovieFeedback from '../models/movieFeedback.model.js';
 
 dotenv.config();
 const seedDatabase = async () => {

@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response, Router } from 'express';
-import { getActors, getActorById } from '../services/actorsService';
+import { getActors, getActorById } from '../services/actorsService.js';
 
 const router = Router();
 

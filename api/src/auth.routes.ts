@@ -1,10 +1,10 @@
 import express, { Request, Response } from 'express';
-import User from './models/user.model';
-import RefreshToken from './models/refreshtoken.model';
+import User from './models/user.model.js';
+import RefreshToken from './models/refreshtoken.model.js';
 import bcrypt from 'bcryptjs';
-import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from './config/jwt';
-import { validateRequest } from './middlewares/validateRequest';
-import { registerSchema, loginSchema } from './validations/userValidation';
+import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from './config/jwt.js';
+import { validateRequest } from './middlewares/validateRequest.js';
+import { registerSchema, loginSchema } from './validations/userValidation.js';
 const router = express.Router();
 
 router.post('/register', validateRequest(registerSchema), async (req: Request, res: Response) => {

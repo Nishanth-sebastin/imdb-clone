@@ -1,15 +1,15 @@
 import { Router, Request, Response, NextFunction } from 'express';
-import optionalAuthMiddleware from '../middlewares/optionalAuth';
-import authMiddleware from '../middlewares/auth';
-import Actor from '../models/actors.model';
-import Producer from '../models/producer.model';
-import { createActor, getActorById } from '../services/actorsService';
-import { createProducer, getProducerById } from '../services/producersService';
-import { createMovie, getMovies, getMoviesById, updateMovie } from '../services/movieService';
-import { processCastMembers, updateExistingMemberReferences } from '../helpers';
-import { validateRequest } from '../middlewares/validateRequest';
-import { movieValidationSchema } from '../validations/movieValidation';
-import { MovieType } from '../types';
+import optionalAuthMiddleware from '../middlewares/optionalAuth.js';
+import authMiddleware from '../middlewares/auth.js';
+import Actor from '../models/actors.model.js';
+import Producer from '../models/producer.model.js';
+import { createActor, getActorById } from '../services/actorsService.js';
+import { createProducer, getProducerById } from '../services/producersService.js';
+import { createMovie, getMovies, getMoviesById, updateMovie } from '../services/movieService.js';
+import { processCastMembers, updateExistingMemberReferences } from '../helpers/index.js';
+import { validateRequest } from '../middlewares/validateRequest.js';
+import { movieValidationSchema } from '../validations/movieValidation.js';
+import { MovieType } from '../types/index.js';
 const router = Router();
 
 interface AuthenticatedRequest<T = any> extends Request {
@@ -24,14 +24,14 @@ router.get('/', optionalAuthMiddleware, async (req: AuthenticatedRequest, res: R
 
     const userMovies = userId
       ? movies
-          .filter((movie: any) => movie.user_id == userId)
-          .map((movie: any) => ({
-            id: movie._id,
-            title: movie.title,
-            year: movie.year,
-            images: movie.images,
-            overall_ratings: movie.overall_ratings,
-          }))
+        .filter((movie: any) => movie.user_id == userId)
+        .map((movie: any) => ({
+          id: movie._id,
+          title: movie.title,
+          year: movie.year,
+          images: movie.images,
+          overall_ratings: movie.overall_ratings,
+        }))
       : [];
 
     const communityMovies = movies

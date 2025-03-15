@@ -1,4 +1,4 @@
-import Movie from '../models/movie.model';
+import Movie from '../models/movie.model.js';
 
 /**
  * Fetch all movies from the database

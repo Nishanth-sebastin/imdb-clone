@@ -1,9 +1,9 @@
 import { Router } from 'express';
-import actorRoutes from './controllers/actors';
-import movieRoutes from './controllers/movies';
-import producerRoutes from './controllers/producers';
-import userRoutes from './controllers/user';
-import authMiddleware from './middlewares/auth';
+import actorRoutes from './controllers/actors.js';
+import movieRoutes from './controllers/movies.js';
+import producerRoutes from './controllers/producers.js';
+import userRoutes from './controllers/user.js';
+import authMiddleware from './middlewares/auth.js';
 
 const router = Router();
 

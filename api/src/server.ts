@@ -1,13 +1,14 @@
 import cors from 'cors';
 import express, { Request, Response } from 'express';
 import dotenv from 'dotenv';
-import { errorHandler } from './middlewares/errorHandler';
-import routes from './routes';
-import authRoutes from './auth.routes';
-import imageUploadRoutes from './config/imageUpload';
-import connectDB from './config/db';
+import { errorHandler } from './middlewares/errorHandler.js';
+import routes from './routes.js';
+import authRoutes from './auth.routes.js';
+import imageUploadRoutes from './config/imageUpload.js';
+import connectDB from './config/db.js';
 import cookieParser from 'cookie-parser';
 
+dotenv.config();
 dotenv.config();
 
 const app = express();

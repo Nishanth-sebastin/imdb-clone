@@ -1,4 +1,4 @@
-import Producer from '../models/producer.model';
+import Producer from '../models/producer.model.js';
 
 /**
  * Fetch all producers from the database
