@@ -1,32 +1,26 @@
 {
+  "name": "turborepo",
   "private": true,
+  "scripts": {
+    "build": "turbo build",
+    "dev": "turbo dev",
+    "lint": "turbo lint",
+    "format": "prettier --write \"**/*.{ts,tsx,md}\""
+  },
+  "devDependencies": {
+    "prettier": "^3.2.5",
+    "turbo": "^2.3.0",
+    "typescript": "5.5.4"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "packageManager": "npm@10.7.0",
   "workspaces": [
     "apps/*",
     "packages/*"
   ],
-  "scripts": {
-    "build": "turbo build",
-    "dev": "turbo run dev --parallel",
-    "lint": "turbo lint",
-    "web": "turbo run dev --filter @repo/web",
-    "db:seed": "turbo run db:seed --filter @repo/api",
-    "api": "turbo run dev --filter @repo/web",
-    "@repo/web": "npm run --workspace @repo/web",
-    "@repo/api": "npm run --workspace @repo/api",
-    "@repo/commons": "npm run --workspace @repo/commons"
-  },
-  "devDependencies": {
-    "@repo/eslint-config": "*",
-    "@types/axios": "^0.9.36",
-    "@types/node": "^22.13.10",
-    "eslint": "7.32.0",
-    "prettier": "^2.5.1",
-    "ts-node": "^10.9.2",
-    "turbo": "^2.4.4"
-  },
-  "packageManager": "npm@9.8.1",
   "dependencies": {
-    "axios": "^1.8.2",
-    "zod": "^3.24.2"
+    "axios": "^1.7.7"
   }
 }
