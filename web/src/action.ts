@@ -37,7 +37,16 @@ export const getMovieFeedback = async (id: string) => {
 
 export const addReview = async (id: string, review: any) => {
   const { data } = await axiosClient.post(`/api/movies/${id}/feedback`, {
-    review,
+    userRating: review.userRating,
+    userReview: review.reviewComment,
+  });
+  return data.data;
+};
+
+export const updateReview = async (id: string, review: any) => {
+  const { data } = await axiosClient.patch(`/api/movies/${id}/feedback`, {
+    userRating: review.userRating,
+    userReview: review.reviewComment,
   });
   return data.data;
 };
