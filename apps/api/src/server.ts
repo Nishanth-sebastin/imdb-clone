@@ -1,5 +1,6 @@
 import cors from 'cors';
 import express from 'express';
+import { VercelRequest, VercelResponse } from '@vercel/node';
 import dotenv from 'dotenv';
 import { errorHandler } from './middlewares/errorHandler';
 import routes from './routes';
@@ -33,14 +34,26 @@ app.use(errorHandler);
 app.get('/', (req, res) => {
   res.send('Hello World!');
 });
-// Database connection
+
 connectDB();
 
-// Start server
-const PORT = process.env.PORT || 8085;
-app.listen(PORT, () => {
-  console.info(`🚀 Server running on port ${PORT}`);
-});
+// Vercel serverless function handler
+const handler = (req: VercelRequest, res: VercelResponse) => {
+  req.url = `/api${req.url}`;
+  return app(req, res);
+};
 
-// Export Express app (optional, for testing purposes)
-export default app;
+// Local server
+const startServer = () => {
+  if (process.env.NODE_ENV !== 'production') {
+    const PORT = process.env.PORT || 8085;
+    app.listen(PORT, () => {
+      console.info(`🚀 Local server running on port ${PORT}`);
+    });
+  }
+};
+
+startServer();
+
+// Export for Vercel
+export default handler;
