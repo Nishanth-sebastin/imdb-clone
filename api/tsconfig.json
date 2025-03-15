@@ -1,9 +1,11 @@
 {
   "compilerOptions": {
-    "esModuleInterop": true,
-    "module": "CommonJS",
+    "target": "esnext",
+    "module": "commonjs",
+    "lib": ["esnext", "dom"],
     "moduleResolution": "node",
-    "outDir": "dist",
-    "strict": true
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true
   }
 }
