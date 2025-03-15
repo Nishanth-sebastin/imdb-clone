@@ -6,8 +6,8 @@
   "type": "module",
   "scripts": {
     "dev": "tsx watch src/server.ts",
-    "build": "npm install && npx esbuild src/server.ts --bundle --platform=node --outfile=dist/index.cjs --external:express --external:cors",
-    "start": "node dist/index.cjs",
+    "build": "npm i && tsc",
+    "start": "node dist/index.js",
     "db:seed": "npx tsx src/seeders/seeder.ts",
     "type-check": "tsc",
     "lint": "eslint \"**/*.ts*\""
