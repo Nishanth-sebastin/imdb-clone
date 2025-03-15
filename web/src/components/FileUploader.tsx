@@ -1,9 +1,9 @@
-import React, { useRef, useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Loader, Upload } from 'lucide-react';
-import { toast } from 'sonner';
-import { FileUploadResult } from '@/types/movie';
-import { LoadingSpinner } from './ui/loading-spinner';
+import React, { useRef, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Loader, Upload } from "lucide-react";
+import { toast } from "sonner";
+import { FileUploadResult } from "@/types/movie";
+import { LoadingSpinner } from "./ui/loading-spinner";
 
 interface FileUploaderProps {
   onChange: (result: FileUploadResult | FileUploadResult[]) => void;
@@ -12,45 +12,55 @@ interface FileUploaderProps {
   multiple?: boolean;
 }
 
-export default function FileUploader({ onChange, className = '', aspectRatio, multiple = false }: FileUploaderProps) {
+export default function FileUploader({
+  onChange,
+  className = "",
+  aspectRatio,
+  multiple = false,
+}: FileUploaderProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   const uploadFile = async (file: File) => {
     setIsLoading(true);
     const formData = new FormData();
-    formData.append('file', file);
+    formData.append("file", file);
 
     try {
-      const response = await fetch(`http://localhost:8085/uploads`, {
-        method: 'POST',
-        body: formData,
-      });
+      const response = await fetch(
+        `https://imdb-clone-1-hohz.onrender.com/uploads`,
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
 
-      if (!response.ok) throw new Error('Upload failed');
+      if (!response.ok) throw new Error("Upload failed");
 
       const data = await response.json();
       return data.fileUrl;
     } catch (error) {
       console.log(error);
-      toast.error('Failed to upload image');
+      toast.error("Failed to upload image");
       return null;
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const files = Array.from(event.target.files || []);
     if (files.length === 0) return;
 
     for (const file of files) {
-      if (!file.type.startsWith('image/')) {
-        toast.error('Please upload only image files');
+      if (!file.type.startsWith("image/")) {
+        toast.error("Please upload only image files");
         return;
       }
       if (file.size > 5 * 1024 * 1024) {
-        toast.error('Each image size should be less than 5MB');
+        toast.error("Each image size should be less than 5MB");
         return;
       }
     }
@@ -68,7 +78,7 @@ export default function FileUploader({ onChange, className = '', aspectRatio, mu
     }
 
     if (fileInputRef.current) {
-      fileInputRef.current.value = '';
+      fileInputRef.current.value = "";
     }
   };
 
@@ -94,7 +104,9 @@ export default function FileUploader({ onChange, className = '', aspectRatio, mu
         ) : (
           <>
             <Upload className="h-8 w-8" />
-            {multiple ? <span className="text-xs">Click to upload images</span> : null}
+            {multiple ? (
+              <span className="text-xs">Click to upload images</span>
+            ) : null}
           </>
         )}
       </Button>
