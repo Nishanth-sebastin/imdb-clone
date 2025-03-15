@@ -14,12 +14,12 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 8085;
 
-const CLIENT_URLS = [process.env.VITE_WEB_URL, 'http://localhost:8080'].filter(Boolean) as string[];
+// const CLIENT_URLS = [process.env.VITE_WEB_URL, 'http://localhost:8080'].filter(Boolean) as string[];
 
 // Middleware
 app.use(
   cors({
-    origin: CLIENT_URLS,
+    origin: process.env.VITE_WEB_URL,
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
   })
