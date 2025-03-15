@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Request, Response, Router } from 'express';
 import multer from 'multer';
 import { UploadApiResponse, v2 as cloudinary } from 'cloudinary';
 import streamifier from 'streamifier';
@@ -12,7 +12,7 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_SECRET,
 });
 
-router.post('/', upload.single('file'), async (req, res) => {
+router.post('/', upload.single('file'), async (req: Request, res: Response) => {
   try {
     if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
 

@@ -1,8 +1,9 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { getUser } from '../services/userService';
 
-interface AuthenticatedRequest extends Request {
-  user?: any;
+interface AuthenticatedRequest<T = any> extends Request {
+  user?: { user_id: string; name: string; email: string };
+  body: T;
 }
 
 const router = Router();

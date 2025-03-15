@@ -1,9 +1,9 @@
-import { Router } from 'express';
+import { NextFunction, Request, Response, Router } from 'express';
 import { getActors, getActorById } from '../services/actorsService';
 
 const router = Router();
 
-router.get('/', async (req, res, next) => {
+router.get('/', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const searchText = (req.query.search as string) || '';
     const actors = await getActors(searchText);
@@ -18,7 +18,7 @@ router.get('/', async (req, res, next) => {
   }
 });
 
-router.get('/:id', async (req, res, next) => {
+router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const actor = await getActorById(req.params.id);
     if (!actor) {

@@ -1,8 +1,8 @@
-import { Router } from 'express';
+import { NextFunction, Request, Response, Router } from 'express';
 import { getProducerById, getProducers } from '../services/producersService';
 const router = Router();
 
-router.get('/', async (req, res, next) => {
+router.get('/', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const searchText = (req.query.search as string) || '';
     const producers = await getProducers(searchText);
@@ -16,7 +16,7 @@ router.get('/', async (req, res, next) => {
   }
 });
 
-router.get('/:id', async (req, res, next) => {
+router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const producer = await getProducerById(req.params.id);
     if (!producer) {

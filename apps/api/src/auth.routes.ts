@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Request, Response } from 'express';
 import User from './models/user.model';
 import RefreshToken from './models/refreshtoken.model';
 import bcrypt from 'bcryptjs';
@@ -7,7 +7,7 @@ import { validateRequest } from './middlewares/validateRequest';
 import { registerSchema, loginSchema } from './validations/userValidation';
 const router = express.Router();
 
-router.post('/register', validateRequest(registerSchema), async (req, res) => {
+router.post('/register', validateRequest(registerSchema), async (req: Request, res: Response) => {
   const { name, username, email, password } = req.body;
   const userExists = await User.findOne({ $or: [{ email }, { username }] });
 
@@ -17,7 +17,7 @@ router.post('/register', validateRequest(registerSchema), async (req, res) => {
   res.status(201).json({ message: 'User registered successfully' });
 });
 
-router.post('/login', validateRequest(loginSchema), async (req, res) => {
+router.post('/login', validateRequest(loginSchema), async (req: Request, res: Response) => {
   const { username, email, password } = req.body;
   const user = await User.findOne({ $or: [{ email }, { username }] });
 
@@ -43,7 +43,7 @@ router.post('/login', validateRequest(loginSchema), async (req, res) => {
   res.json({ accessToken, refreshToken });
 });
 
-router.post('/refresh', async (req, res) => {
+router.post('/refresh', async (req: Request, res: Response) => {
   const { refreshToken } = req.body;
   console.log(req.cookies);
   if (!refreshToken) return res.status(401).json({ message: 'No refresh token' });
@@ -64,7 +64,7 @@ router.post('/refresh', async (req, res) => {
   }
 });
 
-router.post('/logout', async (req, res) => {
+router.post('/logout', async (req: Request, res: Response) => {
   await RefreshToken.deleteOne({ token: req.cookies.refreshToken });
   res.clearCookie('refreshToken');
   res.json({ message: 'Logged out successfully' });

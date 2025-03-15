@@ -1,15 +1,18 @@
-import { Router, Request, Response, NextFunction } from 'express';
-import optionalAuthMiddleware from '../middlewares/optionalAuth';
-import authMiddleware from '../middlewares/auth';
-import Actor from '../models/actors.model';
-import Producer from '../models/producer.model';
-import { createActor, getActorById } from '../services/actorsService';
-import { createProducer, getProducerById } from '../services/producersService';
-import { createMovie, getMovies, getMoviesById, updateMovie } from '../services/movieService';
-import { processCastMembers, updateExistingMemberReferences } from '../helpers';
-import { validateRequest } from '../middlewares/validateRequest';
-import { movieValidationSchema } from '../validations/movieValidation';
-import { MovieType } from '../types';
+import { Router, Request } from 'express';
+import { mock } from 'node:test';
+import optionalAuthMiddleware from 'src/middlewares/optionalAuth';
+import authMiddleware from 'src/middlewares/auth';
+import Actor from 'src/models/actors.model';
+import Producer from 'src/models/producer.model';
+import { createActor, getActorById } from 'src/services/actorsService';
+import { createProducer, getProducerById } from 'src/services/producersService';
+import { createMovie, getMovies, getMoviesById, updateMovie } from '../services/movieService.js';
+import Movie from 'src/models/movie.model';
+import { processCastMembers, updateExistingMemberReferences } from 'src/helpers';
+import User from 'src/models/user.model';
+import { validateRequest } from 'src/middlewares/validateRequest';
+import { movieValidationSchema } from 'src/validations/movieValidation';
+import { MovieType } from 'src/types';
 const router = Router();
 
 interface AuthenticatedRequest<T = any> extends Request {
@@ -17,15 +20,15 @@ interface AuthenticatedRequest<T = any> extends Request {
   body: T;
 }
 
-router.get('/', optionalAuthMiddleware, async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+router.get('/', optionalAuthMiddleware, async (req: AuthenticatedRequest, res, next) => {
   try {
     const movies = await getMovies();
     const userId = req.user?.user_id || null;
 
     const userMovies = userId
       ? movies
-          .filter((movie: any) => movie.user_id == userId)
-          .map((movie: any) => ({
+          .filter((movie) => movie.user_id == userId)
+          .map((movie) => ({
             id: movie._id,
             title: movie.title,
             year: movie.year,
@@ -35,8 +38,8 @@ router.get('/', optionalAuthMiddleware, async (req: AuthenticatedRequest, res: R
       : [];
 
     const communityMovies = movies
-      .filter((movie: any) => !userId || movie.user_id !== userId)
-      .map((movie: any) => ({
+      .filter((movie) => !userId || movie.user_id !== userId)
+      .map((movie) => ({
         id: movie._id,
         title: movie.title,
         year: movie.year,
@@ -50,7 +53,7 @@ router.get('/', optionalAuthMiddleware, async (req: AuthenticatedRequest, res: R
   }
 });
 
-router.get('/:id', optionalAuthMiddleware, async (req: AuthenticatedRequest, res: Response) => {
+router.get('/:id', optionalAuthMiddleware, async (req: AuthenticatedRequest, res) => {
   const movieId = req.params.id;
 
   try {
@@ -60,8 +63,8 @@ router.get('/:id', optionalAuthMiddleware, async (req: AuthenticatedRequest, res
     }
 
     const castDetails = await Promise.all(
-      movie.cast.map(async (castMember: any) => {
-        let personDetails: any = null;
+      movie.cast.map(async (castMember) => {
+        let personDetails = null;
 
         if (castMember.role === 'actor') {
           personDetails = await getActorById(castMember.person);
@@ -112,7 +115,7 @@ router.post(
   '/',
   authMiddleware,
   validateRequest(movieValidationSchema),
-  async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+  async (req: AuthenticatedRequest, res, next) => {
     try {
       const { cast, ...movieData } = req.body;
       const userId = req.user?.user_id;
@@ -172,7 +175,7 @@ router.post(
   }
 );
 
-router.patch('/:id', authMiddleware, async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+router.patch('/:id', authMiddleware, async (req: AuthenticatedRequest, res, next) => {
   try {
     const movieId = req.params.id;
     const { cast, ...movieData } = req.body;

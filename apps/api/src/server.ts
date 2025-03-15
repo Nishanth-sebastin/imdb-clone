@@ -1,5 +1,5 @@
 import cors from 'cors';
-import express from 'express';
+import express, { Request, Response } from 'express';
 import dotenv from 'dotenv';
 import { errorHandler } from './middlewares/errorHandler';
 import routes from './routes';
@@ -33,10 +33,10 @@ app.use('/uploads', imageUploadRoutes);
 app.use(errorHandler);
 
 // Health check endpoint
-app.get('/', (req, res) => {
+app.get('/', (req: Request, res: Response) => {
   res.send('Hello World!');
 });
-app.get('/api/health', (req, res) => {
+app.get('/api/health', (req: Request, res: Response) => {
   res.json({ status: 'OK' });
 });
 
