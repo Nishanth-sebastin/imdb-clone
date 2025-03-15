@@ -1,11 +1,19 @@
 {
   "compilerOptions": {
-    "target": "esnext",
-    "module": "commonjs",
-    "lib": ["esnext", "dom"],
+    "baseUrl": ".",
+    "target": "ES2019",
+    "module": "CommonJS",
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "esModuleInterop": true,
     "moduleResolution": "node",
     "resolveJsonModule": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true
-  }
+    "isolatedModules": true,
+    "outDir": "./dist",
+    "noEmit": false,
+    "skipLibCheck": true,
+    // "types": ["node"],
+    "jsx": "preserve"
+  },
+  "include": ["./src"]
 }
