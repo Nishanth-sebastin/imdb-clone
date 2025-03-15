@@ -10,7 +10,7 @@ import { processCastMembers, updateExistingMemberReferences } from '../helpers/i
 import { validateRequest } from '../middlewares/validateRequest.js';
 import { movieValidationSchema } from '../validations/movieValidation.js';
 import { MovieType } from '../types/index.js';
-import MovieFeedback from 'src/models/movieFeedback.model.js';
+import MovieFeedback from '../models/movieFeedback.model.js';
 const router = Router();
 
 interface AuthenticatedRequest<T = any> extends Request {
