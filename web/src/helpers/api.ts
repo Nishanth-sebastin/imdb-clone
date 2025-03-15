@@ -2,7 +2,7 @@ import axios from 'axios';
 import { AxiosInstance } from 'axios';
 
 const useAxios = (): AxiosInstance => {
-  const baseURL = import.meta.env.BACKEND_URL || 'https://imdb-clone-1-hohz.onrender.com/';
+  const baseURL = import.meta.env.BACKEND_URL || 'https://imdb-clone-1-hohz.onrender.com';
   const axiosInstance = axios.create({
     baseURL,
     headers: {
