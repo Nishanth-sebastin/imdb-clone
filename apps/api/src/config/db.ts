@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import mongoose, { ConnectOptions } from 'mongoose';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -8,8 +8,11 @@ const MONGODB_URI = process.env.MONGODB_URI || '';
 async function connectDB() {
   try {
     await mongoose.connect(MONGODB_URI, {
-      serverSelectionTimeoutMS: 5000, // Reduce timeout
-    });
+      useUnifiedTopology: true, // if needed
+      useNewUrlParser: true,
+      useFindAndModify: false,
+      useCreateIndex: true,
+    } as ConnectOptions);
     console.log('🚀 Connected to MongoDB successfully!');
   } catch (error) {
     console.error('❌ MongoDB connection error:', error);
