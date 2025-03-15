@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "license": "ISC",
   "main": "dist/server.js",
+  "type":"module",
   "scripts": {
     "dev": "tsx watch src/server.ts",
     "build": "npm install && tsc --project tsconfig.json --skipLibCheck",
