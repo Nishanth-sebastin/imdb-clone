@@ -1,19 +1,15 @@
 {
   "compilerOptions": {
-    "target": "ES5",
+    "target": "ES2020",
     "module": "commonjs",
-    "lib": ["es6", "dom"],
-    "allowJs": true,
-    "sourceMap": true,
     "outDir": "./dist",
     "rootDir": "./src",
-    "moduleResolution": "node",
+    "strict": true,
     "esModuleInterop": true,
-    "typeRoots": ["./node_modules/@types"],
-    "types": ["express", "node"],
-    "experimentalDecorators": true,
-    "emitDecoratorMetadata": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "moduleResolution": "node",
+    "types": ["node", "express"],
+    "typeRoots": ["node_modules/@types"]
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules"]
