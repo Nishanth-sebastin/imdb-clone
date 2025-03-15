@@ -10,6 +10,7 @@ import { processCastMembers, updateExistingMemberReferences } from '../helpers/i
 import { validateRequest } from '../middlewares/validateRequest.js';
 import { movieValidationSchema } from '../validations/movieValidation.js';
 import { MovieType } from '../types/index.js';
+import MovieFeedback from 'src/models/movieFeedback.model.js';
 const router = Router();
 
 interface AuthenticatedRequest<T = any> extends Request {
@@ -200,5 +201,108 @@ router.patch('/:id', authMiddleware, async (req: AuthenticatedRequest, res: Resp
     next(error);
   }
 });
+
+
+router.post(
+  "/:id/feedback",
+  authMiddleware,
+  async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    try {
+      const movieId = req.params.id;
+      const { userRating, userReview } = req.body;
+      const userId = req.user?.user_id;
+
+      if (!userId) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const feedback = await MovieFeedback.create({
+        rating: userRating,
+        review: userReview,
+        user_id: userId,
+        movie_id: movieId,
+      });
+
+      res.status(201).json({ message: "Feedback submitted successfully", feedback });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+router.patch(
+  "/:id/feedback",
+  authMiddleware,
+  async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    try {
+      const movieId = req.params.id;
+      const { userRating, userReview } = req.body;
+      const userId = req.user?.user_id;
+
+      if (!userId) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const feedback = await MovieFeedback.findOne({ movie_id: movieId, user_id: userId });
+
+      if (!feedback) {
+        return res.status(404).json({ message: "No feedback found to update." });
+      }
+
+      feedback.rating = userRating;
+      feedback.review = userReview;
+      await feedback.save();
+
+      res.status(200).json({ message: "Feedback updated successfully", feedback });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+
+router.get(
+  "/:id/feedback",
+  optionalAuthMiddleware,
+  async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    try {
+      const movieId = req.params.id;
+      const userId = req.user?.user_id;
+
+      let userReview = null;
+
+      if (userId) {
+        // Fetch feedback specific to the logged-in user
+        userReview = await MovieFeedback.findOne({ movie_id: movieId, user_id: userId })
+          .populate("user_id", "name email");
+
+        if (userReview) {
+          userReview = {
+            userRating: userReview.rating,
+            userReview: userReview.review,
+          };
+        }
+      }
+
+      // Fetch all public reviews for the given movie_id
+      const publicReviews = await MovieFeedback.find({ movie_id: movieId })
+        .populate("user_id", "name email")
+        .select("rating review user_id");
+
+      res.status(200).json({
+        data: {
+          user_reviews: userReview || {},
+          public_reviews: publicReviews.map((review) => ({
+            rating: review.rating,
+            review: review.review,
+            user: review.user_id, // Contains name & email from populate()
+          })),
+        }
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
 
 export default router;
