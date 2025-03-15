@@ -44,7 +44,7 @@ Open the `.env` files in both directories and replace placeholder values with ac
 HOST=http://localhost
 API_PORT=8085
 CLIENT_URL=http://localhost:8080
-DATABASE_URL=<YOUR_DATABASE_URL>
+MONGODB_URI=<YOUR_DATABASE_URL>
 ACCESS_SECRET=<YOUR_ACCESS_SECRET>
 REFRESH_SECRET=<YOUR_REFRESH_SECRET>
 CLOUDINARY_NAME=<YOUR_CLOUDINARY_NAME>
@@ -173,4 +173,3 @@ npm run @repo/api --command
   - Each refresh token is associated with a **User**.
 
 *Note: The `Movie Feedback` schema is still under development.*
-
