@@ -5,7 +5,7 @@
   "main": "dist/server.js",
   "scripts": {
     "dev": "tsx watch src/server.ts",
-    "build": "tsc --project tsconfig.json --skipLibCheck",
+    "build": "npm install && tsc --project tsconfig.json --skipLibCheck",
     "start": "node ./dist/server.js",
     "db:seed": "npx tsx src/seeders/seeder.ts",
     "type-check": "tsc",
