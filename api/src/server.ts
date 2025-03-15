@@ -19,7 +19,7 @@ const PORT = process.env.PORT || 8085;
 // Middleware
 app.use(
   cors({
-    origin: "https://remarkable-stroopwafel-b96c4c.netlify.app",
+    origin: process.env.VITE_WEB_URL,
   })
 );
 
