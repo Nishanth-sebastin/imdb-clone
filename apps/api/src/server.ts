@@ -30,7 +30,9 @@ app.use('/api', routes);
 app.use('/auth', authRoutes);
 app.use('/uploads', imageUploadRoutes);
 app.use(errorHandler);
-
+app.get('/', (req, res) => {
+  res.send('Hello World!');
+});
 // Database connection
 connectDB();
 
