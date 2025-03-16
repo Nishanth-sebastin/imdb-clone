@@ -6,10 +6,10 @@ import Producer from '../models/producer.model.js';
 import { createMovie, getMovieById, getMovies } from '../services/movieService.js';
 import { validateRequest } from '../middlewares/validateRequest.js';
 import { movieValidationSchema } from '../validations/movieValidation.js';
-import { updateReferences } from 'src/helpers/index.js';
-import Movie from 'src/models/movie.model.js';
+import { updateReferences } from '../helpers/index.js';
+import Movie from '../models/movie.model.js';
 import mongoose from 'mongoose';
-import { createFeedback, findFeedbackByMovieAndUser, getMovieFeedbacks, updateFeedback } from 'src/services/movieFeedback.js';
+import { createFeedback, findFeedbackByMovieAndUser, getMovieFeedbacks, updateFeedback } from '../services/movieFeedback.js';
 const router = Router();
 
 interface AuthenticatedRequest<T = any> extends Request {
