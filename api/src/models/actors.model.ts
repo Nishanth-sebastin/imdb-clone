@@ -3,10 +3,6 @@ import { v4 as uuidv4 } from 'uuid';
 
 const actorSchema = new mongoose.Schema(
   {
-    _id: {
-      type: String,
-      default: uuidv4,
-    },
     name: {
       type: String,
       required: true,
@@ -36,5 +32,5 @@ actorSchema.virtual('filmography', {
   foreignField: '_id',
 });
 
-const Actor = mongoose.model('Actor', actorSchema);
+const Actor = mongoose.model('actor', actorSchema);
 export default Actor;

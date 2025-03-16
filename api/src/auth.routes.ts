@@ -45,7 +45,6 @@ router.post('/login', validateRequest(loginSchema), async (req: Request, res: Re
 
 router.post('/refresh', async (req: Request, res: Response) => {
   const { refreshToken } = req.body;
-  console.log(req.cookies);
   if (!refreshToken) return res.status(401).json({ message: 'No refresh token' });
 
   // Check if the token exists in the DB before proceeding

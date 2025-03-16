@@ -3,14 +3,13 @@ import optionalAuthMiddleware from '../middlewares/optionalAuth.js';
 import authMiddleware from '../middlewares/auth.js';
 import Actor from '../models/actors.model.js';
 import Producer from '../models/producer.model.js';
-import { createActor, getActorById } from '../services/actorsService.js';
-import { createProducer, getProducerById } from '../services/producersService.js';
-import { createMovie, getMovies, getMoviesById, updateMovie } from '../services/movieService.js';
-import { processCastMembers, updateExistingMemberReferences } from '../helpers/index.js';
+import { createMovie, getMovieById, getMovies } from '../services/movieService.js';
 import { validateRequest } from '../middlewares/validateRequest.js';
 import { movieValidationSchema } from '../validations/movieValidation.js';
-import { MovieType } from '../types/index.js';
-import MovieFeedback from '../models/movieFeedback.model.js';
+import { updateReferences } from 'src/helpers/index.js';
+import Movie from 'src/models/movie.model.js';
+import mongoose from 'mongoose';
+import { createFeedback, findFeedbackByMovieAndUser, getMovieFeedbacks, updateFeedback } from 'src/services/movieFeedback.js';
 const router = Router();
 
 interface AuthenticatedRequest<T = any> extends Request {
@@ -51,127 +50,51 @@ router.get('/', optionalAuthMiddleware, async (req: AuthenticatedRequest, res: R
   }
 });
 
+
 router.get('/:id', optionalAuthMiddleware, async (req: AuthenticatedRequest, res: Response) => {
-  const movieId = req.params.id;
-
   try {
-    const movie = await getMoviesById(movieId);
-    if (!movie) {
-      return res.status(404).json({ error: 'Movie not found' });
-    }
+    const movie = await getMovieById(req.params.id);
 
-    const castDetails = await Promise.all(
-      movie.cast.map(async (castMember: any) => {
-        let personDetails: any = null;
+    if (!movie) return res.status(404).json({ error: 'Movie not found' });
 
-        if (castMember.role === 'actor') {
-          personDetails = await getActorById(castMember.person);
-        } else {
-          personDetails = await getProducerById(castMember.person);
-        }
-
-        if (!personDetails) {
-          return {
-            id: castMember.person,
-            name: 'Unknown',
-            role: castMember.role,
-            imageUrl: '',
-          };
-        }
-
-        return {
-          id: personDetails.id || castMember.person,
-          name: personDetails.name || 'Unknown',
-          role: castMember.role,
-          imageUrl: personDetails.imageUrl || '',
-        };
-      })
-    );
-
-    const formattedMovie: MovieType = {
-      id: movie._id,
-      title: movie.title,
-      description: movie.description,
-      year: movie.year,
-      images: movie.images,
-      cast: castDetails,
-      overall_ratings: movie.overall_ratings,
+    const response = {
+      ...movie,
+      cast: movie.cast.map(({ person, role }: any) => ({
+        id: person?._id || '',
+        name: person?.name || 'Unknown',
+        role,
+        imageUrl: person?.imageUrl || ''
+      })),
+      is_user_movie: req.user ? movie.user_id === req.user.user_id : undefined
     };
 
-    if (req.user) {
-      formattedMovie.is_user_movie = movie.user_id === req.user.user_id;
-    }
-
-    res.json({ data: formattedMovie });
+    res.json({ data: response });
   } catch (error) {
-    console.error(error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
 
-router.post(
-  '/',
-  authMiddleware,
-  validateRequest(movieValidationSchema),
-  async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
-    try {
-      const { cast, ...movieData } = req.body;
-      const userId = req.user?.user_id;
+router.post('/', authMiddleware, validateRequest(movieValidationSchema), async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const { cast, ...movieData } = req.body;
+    const userId = req.user!.user_id;
 
-      if (!userId) {
-        return res.status(401).json({ message: 'Unauthorized' });
-      }
+    const processedCast = await Promise.all(
+      cast.map(async ({ id, name, imageUrl, role }: any) => {
+        if (id) return { person: id, role };
 
-      // Process cast members
-      const processedCast = await Promise.all(
-        cast.map(async (member: any) => {
-          try {
-            // Existing cast member - just use reference
-            if (member.id) return { id: member.id, role: member.role };
+        const Model = role === 'actor' ? Actor : Producer;
+        const { _id } = await Model.create({ name, imageUrl });
+        return { person: _id, role };
+      })
+    );
 
-            // New cast member - create in appropriate collection
-            let result;
-            if (member.role === 'actor') {
-              result = await createActor({
-                name: member.name,
-                imageUrl: member.imageUrl,
-              });
-            } else if (member.role === 'producer') {
-              result = await createProducer({
-                name: member.name,
-                imageUrl: member.imageUrl,
-              });
-            } else {
-              throw new Error(`Invalid role: ${member.role}`);
-            }
-
-            return { id: result._id, role: member.role };
-          } catch (error) {
-            throw new Error(`Failed to process cast member: ${(error as Error).message}`);
-          }
-        })
-      );
-
-      // Create movie with processed cast references
-      const newMovie = await createMovie(
-        {
-          ...movieData,
-          cast: processedCast,
-        },
-        userId
-      );
-
-      await Promise.all(
-        processedCast.map(({ id, role }) =>
-          (role === 'actor' ? Actor : Producer).findByIdAndUpdate(id, { $addToSet: { movies: newMovie._id } })
-        )
-      );
-      res.status(201).json({ data: newMovie });
-    } catch (error) {
-      next(error);
-    }
+    const movie = await createMovie(movieData, userId, processedCast);
+    res.status(201).json({ data: movie });
+  } catch (error) {
+    res.status(500).json({ error: 'Internal Server Error' });
   }
-);
+});
 
 router.patch('/:id', authMiddleware, async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
   try {
@@ -179,53 +102,77 @@ router.patch('/:id', authMiddleware, async (req: AuthenticatedRequest, res: Resp
     const { cast, ...movieData } = req.body;
     const userId = req.user?.user_id;
 
-    if (!userId) {
-      return res.status(401).json({ message: 'Unauthorized' });
-    }
+    if (!userId) return res.status(401).json({ message: 'Unauthorized' });
 
-    // 1. Process new cast members
-    const { processedCast } = await processCastMembers(cast);
-    await updateMovie(movieId, { ...movieData, cast: processedCast }, userId);
+    const existingMovie = await Movie.findById(movieId).lean();
+    if (!existingMovie) return res.status(404).json({ error: 'Movie not found' });
 
-    // 2. Remove the movie ID from all existing actors and producers
+    const processedCast = await Promise.all(
+      cast.map(async ({ id, name, imageUrl, role }: any) => {
+        if (id) return { person: id, role: role };
+
+        const { _id } = await mongoose.model(role).create({ name, imageUrl });
+        return { person: _id.toString(), role: role };
+      })
+    );
+
+    // 3. Update movie document
+    const updatedMovie = await Movie.findByIdAndUpdate(
+      movieId,
+      { ...movieData, cast: processedCast },
+      { new: true }
+    ).lean();
+
+    // 4. Identify cast changes
+    const originalCast = existingMovie.cast.map(c => c.person.toString());
+    const newCast = processedCast.map(c => c.person.toString());
+
+    // 5. Update references for added/removed cast
     await Promise.all([
-      Actor.updateMany({ movies: movieId }, { $pull: { movies: movieId } }),
-      Producer.updateMany({ movies: movieId }, { $pull: { movies: movieId } }),
+      // Remove from deleted cast members
+      ...originalCast
+        .filter(id => !newCast.includes(id))
+        .map(async oldId => {
+          const role = existingMovie.cast.find(c => c.person.toString() === oldId)?.role;
+          if (role) await updateReferences(movieId, oldId, role, '$pull');
+        }),
+
+      // Add to new cast members
+      ...processedCast
+        .filter(({ person }) => !originalCast.includes(person.toString()))
+        .map(({ person, role }) => updateReferences(movieId, person, role, '$addToSet'))
     ]);
 
-    // 3. Update new/existing cast members with the movie ID
-    await updateExistingMemberReferences(processedCast, movieId);
-
-    res.status(200).json({ message: 'Movie cast updated successfully' });
+    res.status(200).json({
+      message: 'Movie updated successfully',
+      data: updatedMovie
+    });
   } catch (error) {
     next(error);
   }
 });
-
 
 router.post(
   "/:id/feedback",
   authMiddleware,
   async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     try {
-      const movieId = req.params.id;
       const { userRating, userReview } = req.body;
+      const movieId = req.params.id;
       const userId = req.user?.user_id;
 
-      if (!userId) {
-        return res.status(401).json({ message: "Unauthorized" });
-      }
+      if (!userId) return res.status(401).json({ message: "Unauthorized" });
 
-      const feedback = await MovieFeedback.create({
+      const feedback = await createFeedback({
         rating: userRating,
         review: userReview,
         user_id: userId,
-        movie_id: movieId,
+        movie_id: movieId
       });
 
       res.status(201).json({ message: "Feedback submitted successfully", feedback });
     } catch (error) {
-      next(error);
+      res.status(500).json({ error: 'Internal Server Error' });
     }
   }
 );
@@ -235,28 +182,25 @@ router.patch(
   authMiddleware,
   async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     try {
-      const movieId = req.params.id;
       const { userRating, userReview } = req.body;
+      const movieId = req.params.id;
       const userId = req.user?.user_id;
 
-      if (!userId) {
-        return res.status(401).json({ message: "Unauthorized" });
-      }
+      if (!userId) return res.status(401).json({ message: "Unauthorized" });
 
-      const feedback = await MovieFeedback.findOne({ movie_id: movieId, user_id: userId });
+      const feedback = await updateFeedback(movieId, userId, {
+        rating: userRating,
+        review: userReview,
+        updated_at: Date.now()
+      });
 
-      if (!feedback) {
-        return res.status(404).json({ message: "No feedback found to update." });
-      }
-
-      feedback.rating = userRating;
-      feedback.review = userReview;
-      await feedback.save();
+      if (!feedback) return res.status(404).json({ message: "No feedback found to update" });
 
       res.status(200).json({ message: "Feedback updated successfully", feedback });
     } catch (error) {
-      next(error);
+      res.status(500).json({ error: 'Internal Server Error' });
     }
+
   }
 );
 
@@ -272,35 +216,27 @@ router.get(
       let userReview = null;
 
       if (userId) {
-        // Fetch feedback specific to the logged-in user
-        userReview = await MovieFeedback.findOne({ movie_id: movieId, user_id: userId })
-          .populate("user_id", "name email");
-
-        if (userReview) {
-          userReview = {
-            userRating: userReview.rating,
-            userReview: userReview.review,
-          };
-        }
+        const userFeedback = await findFeedbackByMovieAndUser(movieId, userId);
+        userReview = userFeedback ? {
+          userRating: userFeedback.rating,
+          userReview: userFeedback.review
+        } : null;
       }
 
-      // Fetch all public reviews for the given movie_id
-      const publicReviews = await MovieFeedback.find({ movie_id: movieId })
-        .populate("user_id", "name email")
-        .select("rating review user_id");
+      const publicReviews = await getMovieFeedbacks(movieId);
 
       res.status(200).json({
         data: {
           user_reviews: userReview || {},
-          public_reviews: publicReviews.map((review) => ({
+          public_reviews: publicReviews.map(review => ({
             rating: review.rating,
             review: review.review,
-            user: review.user_id, // Contains name & email from populate()
-          })),
+            user: review.user_id
+          }))
         }
       });
     } catch (error) {
-      next(error);
+      res.status(500).json({ error: 'Internal Server Error' });
     }
   }
 );
