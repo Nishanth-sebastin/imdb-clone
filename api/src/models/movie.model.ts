@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { updateReferences } from 'src/helpers/index.js';
+import { updateReferences } from '../helpers/index.js';
 import { v4 as uuidv4 } from 'uuid';
 
 const movieSchema = new mongoose.Schema({
