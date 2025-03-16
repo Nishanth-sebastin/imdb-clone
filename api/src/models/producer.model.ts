@@ -3,10 +3,6 @@ import { v4 as uuidv4 } from 'uuid';
 
 const producerSchema = new mongoose.Schema(
   {
-    _id: {
-      type: String,
-      default: uuidv4,
-    },
     name: {
       type: String,
       required: [true, 'Producer name is required'],
@@ -35,5 +31,5 @@ producerSchema.virtual('filmography', {
   localField: 'movies',
   foreignField: '_id',
 });
-const Producer = mongoose.model('Producer', producerSchema);
+const Producer = mongoose.model('producer', producerSchema);
 export default Producer;

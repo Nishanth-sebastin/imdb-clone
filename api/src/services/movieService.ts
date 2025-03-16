@@ -17,9 +17,16 @@ export async function getMovies() {
  * @param id Movie ID
  * @returns Movie object
  */
-export async function getMoviesById(id: string) {
+export async function getMovieById(id: string) {
   try {
-    return await Movie.findById(id);
+    return await Movie.findById(id)
+      .populate({
+        path: 'cast.person',
+        select: 'name imageUrl',
+        options: { lean: true }
+      })
+      .lean();
+
   } catch (error) {
     throw new Error(`Error fetching movies: ${(error as Error).message}`);
   }
@@ -30,16 +37,9 @@ export async function getMoviesById(id: string) {
  * @param data Movie details (name, year, producerId, actors)
  * @returns Created movie object
  */
-export async function createMovie(movieData: any, userId: string) {
+export async function createMovie(movieData: any, userId: string, processedCast: any) {
   try {
-    const movie = new Movie({
-      ...movieData,
-      user_id: userId,
-      cast: movieData.cast.map((ref: any) => ({
-        person: ref.id,
-        role: ref.role.toLowerCase(),
-      })),
-    });
+    const movie = await Movie.create({ ...movieData, user_id: userId, cast: processedCast })
     return await movie.save();
   } catch (error) {
     throw new Error(`Error creating movie: ${(error as Error).message}`);

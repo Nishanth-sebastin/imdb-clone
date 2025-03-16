@@ -1,11 +1,8 @@
 import mongoose from 'mongoose';
+import { updateReferences } from 'src/helpers/index.js';
 import { v4 as uuidv4 } from 'uuid';
 
 const movieSchema = new mongoose.Schema({
-  _id: {
-    type: String,
-    default: uuidv4,
-  },
   title: {
     type: String,
     required: [true, 'Movie title is required'],
@@ -60,6 +57,13 @@ const movieSchema = new mongoose.Schema({
     },
   ],
 });
+
+movieSchema.post('save', async function (doc) {
+  await Promise.all(doc.cast.map(({ person, role }) =>
+    updateReferences(doc._id, person, role, '$addToSet')
+  ));
+});
+
 
 const Movie = mongoose.model('Movie', movieSchema);
 export default Movie;

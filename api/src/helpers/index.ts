@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import Actor from '../models/actors.model.js';
 import Producer from '../models/producer.model.js';
 
@@ -18,8 +19,8 @@ export const processCastMembers = async (cast: any) => {
       movies: [],
     });
 
-    processedCast.push({ id: newMember._id, role: member.role });
-    newMemberIds.add(newMember._id);
+    processedCast.push({ id: newMember._id.toString(), role: member.role });
+    newMemberIds.add(newMember._id.toString());
   }
 
   return { processedCast, newMemberIds: Array.from(newMemberIds) };
@@ -33,3 +34,11 @@ export const updateExistingMemberReferences = async (processedCast: any[], movie
     })
   );
 };
+
+export const updateReferences = async (movieId: any, personId: string, role: string, operation: '$addToSet' | '$pull') => {
+  await mongoose.model(role).updateOne(
+    { _id: personId },
+    { [operation]: { movies: movieId } }
+  );
+};
+
