@@ -302,7 +302,6 @@ const MovieDetail = () => {
                 <div className="mt-8 text-center p-4">
                   <p className="text-cinema-400 flex justify-center items-center gap-x-4 text-sm">
                     <InfoIcon /> You must be logged in to post your review
-                    content.
                   </p>
                 </div>
               ) : (

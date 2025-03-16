@@ -3,14 +3,10 @@ import optionalAuthMiddleware from '../middlewares/optionalAuth.js';
 import authMiddleware from '../middlewares/auth.js';
 import Actor from '../models/actors.model.js';
 import Producer from '../models/producer.model.js';
-import { createActor, getActorById } from '../services/actorsService.js';
-import { createProducer, getProducerById } from '../services/producersService.js';
-import { createMovie, getMovieById, getMovies, updateMovie } from '../services/movieService.js';
+import { createMovie, getMovieById, getMovies } from '../services/movieService.js';
 import { validateRequest } from '../middlewares/validateRequest.js';
 import { movieValidationSchema } from '../validations/movieValidation.js';
-import { MovieType } from '../types/index.js';
-import MovieFeedback from '../models/movieFeedback.model.js';
-import { processCastMembers, updateExistingMemberReferences, updateReferences } from 'src/helpers/index.js';
+import { updateReferences } from 'src/helpers/index.js';
 import Movie from 'src/models/movie.model.js';
 import mongoose from 'mongoose';
 import { createFeedback, findFeedbackByMovieAndUser, getMovieFeedbacks, updateFeedback } from 'src/services/movieFeedback.js';
@@ -108,24 +104,51 @@ router.patch('/:id', authMiddleware, async (req: AuthenticatedRequest, res: Resp
     const { cast, ...movieData } = req.body;
     const userId = req.user?.user_id;
 
-    if (!userId) {
-      return res.status(401).json({ message: 'Unauthorized' });
-    }
+    if (!userId) return res.status(401).json({ message: 'Unauthorized' });
 
-    // 1. Process new cast members
-    const { processedCast } = await processCastMembers(cast);
-    await updateMovie(movieId, { ...movieData, cast: processedCast }, userId);
+    const existingMovie = await Movie.findById(movieId).lean();
+    if (!existingMovie) return res.status(404).json({ error: 'Movie not found' });
 
-    // 2. Remove the movie ID from all existing actors and producers
+    const processedCast = await Promise.all(
+      cast.map(async ({ id, name, imageUrl, role }: any) => {
+        if (id) return { person: id, role: role };
+
+        const { _id } = await mongoose.model(role).create({ name, imageUrl });
+        return { person: _id.toString(), role: role };
+      })
+    );
+
+    // 3. Update movie document
+    const updatedMovie = await Movie.findByIdAndUpdate(
+      movieId,
+      { ...movieData, cast: processedCast },
+      { new: true }
+    ).lean();
+
+    // 4. Identify cast changes
+    const originalCast = existingMovie.cast.map(c => c.person.toString());
+    const newCast = processedCast.map(c => c.person.toString());
+
+    // 5. Update references for added/removed cast
     await Promise.all([
-      Actor.updateMany({ movies: movieId }, { $pull: { movies: movieId } }),
-      Producer.updateMany({ movies: movieId }, { $pull: { movies: movieId } }),
+      // Remove from deleted cast members
+      ...originalCast
+        .filter(id => !newCast.includes(id))
+        .map(async oldId => {
+          const role = existingMovie.cast.find(c => c.person.toString() === oldId)?.role;
+          if (role) await updateReferences(movieId, oldId, role, '$pull');
+        }),
+
+      // Add to new cast members
+      ...processedCast
+        .filter(({ person }) => !originalCast.includes(person.toString()))
+        .map(({ person, role }) => updateReferences(movieId, person, role, '$addToSet'))
     ]);
 
-    // 3. Update new/existing cast members with the movie ID
-    await updateExistingMemberReferences(processedCast, movieId);
-
-    res.status(200).json({ message: 'Movie cast updated successfully' });
+    res.status(200).json({
+      message: 'Movie updated successfully',
+      data: updatedMovie
+    });
   } catch (error) {
     next(error);
   }
