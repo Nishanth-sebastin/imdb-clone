@@ -70,7 +70,6 @@ router.get('/:id', optionalAuthMiddleware, async (req: AuthenticatedRequest, res
 
     res.json({ data: response });
   } catch (error) {
-    console.log(error)
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
@@ -93,7 +92,6 @@ router.post('/', authMiddleware, validateRequest(movieValidationSchema), async (
     const movie = await createMovie(movieData, userId, processedCast);
     res.status(201).json({ data: movie });
   } catch (error) {
-    console.log(error)
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });

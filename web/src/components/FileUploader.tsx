@@ -40,7 +40,6 @@ export default function FileUploader({
       const data = await response.json();
       return data.fileUrl;
     } catch (error) {
-      console.log(error);
       toast.error("Failed to upload image");
       return null;
     } finally {
