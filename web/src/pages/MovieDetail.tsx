@@ -218,7 +218,9 @@ const MovieDetail = () => {
                 <div className="flex items-center space-x-1 bg-gold/20 px-3 py-1 rounded-full">
                   <Star className="h-5 w-5 text-gold" />
                   <span className="font-semibold text-gold flex gap-x-2 items-center">
-                    {movie.overall_ratings > 0 ? movie.overall_ratings : "N/A"}
+                    {movie.overall_ratings > 0
+                      ? Math.floor(movie.overall_ratings * 10) / 10
+                      : "N/A"}{" "}
                     {movie.rating_count ? (
                       <span className="text-gray-600 text-sm">
                         ({movie.rating_count})
