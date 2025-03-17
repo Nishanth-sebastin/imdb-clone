@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import { updateMovieRating } from 'src/services/movieFeedback.js';
 import { v4 as uuidv4 } from 'uuid';
 
 const movieFeedbackSchema = new mongoose.Schema({
@@ -23,6 +24,15 @@ const movieFeedbackSchema = new mongoose.Schema({
     ref: 'Movie',
   },
 });
+
+movieFeedbackSchema.post('save', function (doc) {
+  updateMovieRating(doc.movie_id).catch(console.error);
+});
+
+// movieFeedbackSchema.post('deleteOne', { document: true }, function (doc) {
+//   updateMovieRating(doc.movie_id).catch(console.error);
+// });
+
 
 const MovieFeedback = mongoose.model('MovieFeedback', movieFeedbackSchema);
 export default MovieFeedback;

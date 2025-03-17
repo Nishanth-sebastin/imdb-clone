@@ -59,7 +59,12 @@ export default function UserMovieCard({ movie }: UserMovieCardProps) {
         <div className="flex items-center space-x-1">
           <Star className="h-4 w-4 text-gold" />
           <span className="text-sm">
-            {movie.overall_ratings > 0 ? movie.rating.toFixed(1) : "No ratings"}
+            {movie.overall_ratings > 0 ? movie.overall_ratings : "No ratings"}{" "}
+            {movie.rating_count ? (
+              <span className="text-gray-600 text-sm">
+                ({movie.rating_count})
+              </span>
+            ) : null}
           </span>
         </div>
       </div>

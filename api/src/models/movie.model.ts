@@ -38,6 +38,10 @@ const movieSchema = new mongoose.Schema({
     max: 5,
     default: 0,
   },
+  rating_count: {
+    type: Number,
+    default: 0,
+  },
   cast: [
     {
       _id: {

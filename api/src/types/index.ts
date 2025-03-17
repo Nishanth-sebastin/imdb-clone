@@ -11,5 +11,6 @@ export interface MovieType {
     imageUrl: string;
   }[];
   overall_ratings: number;
+  rating_count: number;
   is_user_movie?: boolean; // Ensure this field is optional in type
 }

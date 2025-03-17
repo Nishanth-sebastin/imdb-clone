@@ -31,6 +31,7 @@ router.get('/', optionalAuthMiddleware, async (req: AuthenticatedRequest, res: R
           year: movie.year,
           images: movie.images,
           overall_ratings: movie.overall_ratings,
+          rating_count: movie.rating_count
         }))
       : [];
 
@@ -42,6 +43,7 @@ router.get('/', optionalAuthMiddleware, async (req: AuthenticatedRequest, res: R
         year: movie.year,
         images: movie.images,
         overall_ratings: movie.overall_ratings,
+        rating_count: movie.rating_count
       }));
 
     res.json({ data: { userMovies, communityMovies } });

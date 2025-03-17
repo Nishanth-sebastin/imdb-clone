@@ -40,9 +40,11 @@ export default function CastCrewSelector({
   const searchRef = useRef<HTMLDivElement>(null);
   const hasProducer = cast.some((member) => member.role === "producer");
 
-  // Initialize inputValues when cast changes
+  // Ensure inputValues array is always synced with cast array length
   useEffect(() => {
-    setInputValues(cast.map((member) => member.name || ""));
+    if (inputValues.length !== cast.length) {
+      setInputValues(cast.map((member) => member.name || ""));
+    }
   }, [cast.length]);
 
   // Close search results when clicking outside
@@ -83,6 +85,16 @@ export default function CastCrewSelector({
     const newInputValues = [...inputValues];
     newInputValues.splice(index, 1);
     setInputValues(newInputValues);
+
+    // Reset selected index if the removed item was selected
+    if (selectedMemberIndex === index) {
+      setSelectedMemberIndex(null);
+      setSearchQuery("");
+      setSearchResults([]);
+    } else if (selectedMemberIndex !== null && selectedMemberIndex > index) {
+      // Adjust the selected index if a member before it was removed
+      setSelectedMemberIndex(selectedMemberIndex - 1);
+    }
   };
 
   const handleRoleChange = (index: number, role: "actor" | "producer") => {
@@ -141,13 +153,15 @@ export default function CastCrewSelector({
   const { data, isFetching } = useQueryEvents(
     useQuery({
       queryKey: [
-        cast[selectedMemberIndex || 0]?.role === "producer"
+        cast[selectedMemberIndex !== null ? selectedMemberIndex : 0]?.role ===
+        "producer"
           ? FETCH_PRODUCERS
           : FETCH_ACTORS,
         searchQuery,
       ],
       queryFn: () => {
-        const role = cast[selectedMemberIndex || 0]?.role;
+        if (selectedMemberIndex === null) return [];
+        const role = cast[selectedMemberIndex]?.role;
         return role === "producer"
           ? fetchProducers(searchQuery)
           : fetchActors(searchQuery);
@@ -176,15 +190,17 @@ export default function CastCrewSelector({
       queryKey: [
         "person",
         selectedPersonId,
-        cast[selectedMemberIndex || 0]?.role,
+        selectedMemberIndex !== null ? cast[selectedMemberIndex]?.role : null,
       ],
       queryFn: async () => {
         if (
           !selectedPersonId ||
           selectedMemberIndex === null ||
           !cast[selectedMemberIndex]?.role
-        )
+        ) {
           return null;
+        }
+
         return cast[selectedMemberIndex]?.role === "actor"
           ? fetchSingleActor(selectedPersonId)
           : fetchSingleProducer(selectedPersonId);
@@ -221,28 +237,46 @@ export default function CastCrewSelector({
     }
   );
 
+  // This is a completely new implementation of handleSelectPerson
   const handleSelectPerson = (person: any) => {
-    if (selectedMemberIndex !== null) {
-      setSelectedPersonId(person.id);
+    console.log("handleSelectPerson called", person);
 
-      // Update name immediately for better UX
-      const newCast = [...cast];
+    if (selectedMemberIndex === null) {
+      console.error("No member selected");
+      return;
+    }
+
+    // Immediately update the UI for better UX
+    const newCast = [...cast];
+
+    // Make sure we're working with a valid index
+    if (selectedMemberIndex >= 0 && selectedMemberIndex < newCast.length) {
       newCast[selectedMemberIndex] = {
         ...newCast[selectedMemberIndex],
         name: person.name,
         id: person.id,
         imageUrl: person.imageUrl || "",
       };
+
+      // Update the state directly
       onChange(newCast);
 
-      // Update the input value
+      // Update input values
       const newInputValues = [...inputValues];
       newInputValues[selectedMemberIndex] = person.name;
       setInputValues(newInputValues);
 
+      // Set the ID to trigger the fetch query
+      setSelectedPersonId(person.id);
+
+      // Clear search UI
       setSearchResults([]);
       setShowCreateNew(false);
+
+      // Show toast confirmation
       toast.success(`${person.name} selected`);
+    } else {
+      console.error("Invalid member index:", selectedMemberIndex);
     }
   };
 
@@ -300,9 +334,8 @@ export default function CastCrewSelector({
   // Handle direct input (without selection from dropdown)
   const handleInputBlur = (index: number) => {
     if (
-      selectedMemberIndex === index &&
       inputValues[index] &&
-      !cast[index].id
+      (!cast[index].id || cast[index].name !== inputValues[index])
     ) {
       // If there's text in the input but no selection was made, use the input text as the name
       const newCast = [...cast];
@@ -401,7 +434,7 @@ export default function CastCrewSelector({
                         {member.imageUrl && (
                           <div className="w-6 h-6 rounded-full overflow-hidden mr-2">
                             <img
-                              src={member.imageUrl}
+                              src={member.imageUrl || "/placeholder.svg"}
                               alt={member.name}
                               className="w-full h-full object-cover"
                             />
@@ -443,25 +476,41 @@ export default function CastCrewSelector({
                   )}
                 </div>
 
-                {/* Search results dropdown */}
+                {/* Search results dropdown - COMPLETELY REDESIGNED */}
                 {searchResults.length > 0 && selectedMemberIndex === index && (
                   <div className="absolute z-10 mt-1 w-full bg-cinema-800 border border-cinema-700 rounded-md max-h-56 overflow-y-auto">
                     {searchResults.map((result, resultIndex) => (
                       <div
                         key={resultIndex}
-                        className="flex items-center p-2 hover:bg-cinema-700 cursor-pointer"
-                        onClick={() => handleSelectPerson(result)}
+                        className="p-2 hover:bg-cinema-700 cursor-pointer"
                       >
-                        {result.imageUrl && (
-                          <div className="w-8 h-8 rounded-full overflow-hidden mr-2">
-                            <img
-                              src={result.imageUrl}
-                              alt={result.name}
-                              className="w-full h-full object-cover"
-                            />
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          className="w-full justify-start p-0 h-auto text-left hover:bg-transparent"
+                          onMouseDown={() => {
+                            setSelectedPersonId(result.id);
+                          }}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            console.log("Select button clicked", result);
+                            handleSelectPerson(result);
+                          }}
+                        >
+                          <div className="flex items-center w-full">
+                            {result.imageUrl && (
+                              <div className="w-8 h-8 rounded-full overflow-hidden mr-2 flex-shrink-0">
+                                <img
+                                  src={result.imageUrl || "/placeholder.svg"}
+                                  alt={result.name}
+                                  className="w-full h-full object-cover"
+                                />
+                              </div>
+                            )}
+                            <div className="flex-grow">{result.name}</div>
                           </div>
-                        )}
-                        <div>{result.name}</div>
+                        </Button>
                       </div>
                     ))}
                   </div>
@@ -497,7 +546,7 @@ export default function CastCrewSelector({
               {member.imageUrl ? (
                 <div className="relative group shrink-0 w-20 aspect-[2/3] rounded-md overflow-hidden border border-cinema-800">
                   <img
-                    src={member.imageUrl}
+                    src={member.imageUrl || "/placeholder.svg"}
                     alt={member.name}
                     className="w-full h-full object-cover"
                   />
