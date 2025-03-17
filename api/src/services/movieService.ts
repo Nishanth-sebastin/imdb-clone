@@ -6,7 +6,7 @@ import Movie from '../models/movie.model.js';
  */
 export async function getMovies() {
   try {
-    return await Movie.find().select('title user year images user_id overall_ratings');
+    return await Movie.find().select('title user year images user_id overall_ratings rating_count');
   } catch (error) {
     throw new Error(`Error fetching movies: ${(error as Error).message}`);
   }

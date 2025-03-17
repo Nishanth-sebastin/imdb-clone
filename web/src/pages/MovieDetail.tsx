@@ -197,7 +197,7 @@ const MovieDetail = () => {
                 <div className="mt-4">
                   <Button
                     className="w-full bg-gold hover:bg-gold/90 text-cinema-950 font-medium"
-                    onClick={() => navigate(`/edit-movie/${movie.id}`)}
+                    onClick={() => navigate(`/edit-movie/${movie._id}`)}
                   >
                     <Edit className="mr-2 h-4 w-4" />
                     Edit Movie
@@ -217,10 +217,13 @@ const MovieDetail = () => {
                 <h1 className="text-3xl font-bold">{movie.title}</h1>
                 <div className="flex items-center space-x-1 bg-gold/20 px-3 py-1 rounded-full">
                   <Star className="h-5 w-5 text-gold" />
-                  <span className="font-semibold text-gold">
-                    {movie.overall_ratings > 0
-                      ? movie.overall_ratings.toFixed(1)
-                      : "N/A"}
+                  <span className="font-semibold text-gold flex gap-x-2 items-center">
+                    {movie.overall_ratings > 0 ? movie.overall_ratings : "N/A"}
+                    {movie.rating_count ? (
+                      <span className="text-gray-600 text-sm">
+                        ({movie.rating_count})
+                      </span>
+                    ) : null}
                   </span>
                 </div>
               </div>

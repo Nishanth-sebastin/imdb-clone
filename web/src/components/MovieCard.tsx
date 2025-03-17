@@ -1,6 +1,6 @@
-import { Movie } from '@/types/movie';
-import { Star } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Movie } from "@/types/movie";
+import { Star } from "lucide-react";
+import { Link } from "react-router-dom";
 
 interface MovieCardProps {
   movie: Movie;
@@ -14,10 +14,10 @@ export default function MovieCard({ movie }: MovieCardProps) {
       onLoad={(e) => {
         // Animation when card loads
         const target = e.currentTarget;
-        target.style.opacity = '0';
+        target.style.opacity = "0";
         setTimeout(() => {
-          target.style.transition = 'opacity 0.5s ease-in-out';
-          target.style.opacity = '1';
+          target.style.transition = "opacity 0.5s ease-in-out";
+          target.style.opacity = "1";
         }, 100);
       }}
     >
@@ -40,12 +40,21 @@ export default function MovieCard({ movie }: MovieCardProps) {
       </div>
       <div className="movie-card-content">
         <div className="flex items-start justify-between">
-          <h3 className="font-semibold text-lg line-clamp-1 group-hover:text-gold transition-colors">{movie.title}</h3>
+          <h3 className="font-semibold text-lg line-clamp-1 group-hover:text-gold transition-colors">
+            {movie.title}
+          </h3>
           <span className="text-sm text-cinema-400">{movie.year}</span>
         </div>
         <div className="flex items-center space-x-1">
           <Star className="h-4 w-4 text-gold" />
-          <span className="text-sm"> {movie.overall_ratings > 0 ? movie.rating.toFixed(1) : 'No ratings'}</span>
+          <span className="text-sm">
+            {movie.overall_ratings > 0 ? movie.overall_ratings : "No ratings"}{" "}
+            {movie.rating_count ? (
+              <span className="text-gray-600 text-sm">
+                ({movie.rating_count})
+              </span>
+            ) : null}
+          </span>
         </div>
       </div>
     </div>

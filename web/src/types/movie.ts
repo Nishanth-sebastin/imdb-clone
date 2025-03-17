@@ -11,6 +11,7 @@ export interface Movie {
   createdByName: string | null;
   rating: number;
   reviews: Review[];
+  rating_count: number;
   cast: CastMember[];
 }
 
