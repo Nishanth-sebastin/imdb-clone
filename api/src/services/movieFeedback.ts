@@ -1,4 +1,4 @@
-import Movie from 'src/models/movie.model.js';
+import Movie from '../models/movie.model.js';
 import MovieFeedback from '../models/movieFeedback.model.js';
 
 export async function createFeedback(data: {
